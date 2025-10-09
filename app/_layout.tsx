@@ -6,8 +6,6 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useColorScheme as useNativeWindColorScheme } from "nativewind";
-import { useEffect } from "react";
 import "react-native-reanimated";
 import "../global.css";
 
@@ -17,12 +15,6 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
-  const { setColorScheme } = useNativeWindColorScheme();
-
-  // Sync your custom hook with NativeWind
-  useEffect(() => {
-    setColorScheme(colorScheme);
-  }, [colorScheme]);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>

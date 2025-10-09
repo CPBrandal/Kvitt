@@ -1,10 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./app/**/*.{js,jsx,ts,tsx}", // For Expo Router
-    "./components/**/*.{js,jsx,ts,tsx}",
-  ],
-  darkMode: "class",
+  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  darkMode: "class", // ⚠️ CRITICAL: Must be "class"
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
