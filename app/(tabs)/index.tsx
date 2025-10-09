@@ -1,18 +1,64 @@
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
+import * as ImagePicker from "expo-image-picker";
 import { StatusBar } from "expo-status-bar";
 import { Switch, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
+  const GOOGLE_CLOUD_API_KEY = Constants.expoConfig?.extra?.googleCloudApiKey;
+
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const handleTakePhoto = () => {
-    console.log("Opening camera...");
+  const handleTakePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status !== "granted") {
+      alert("Sorry, we need camera permissions to make this work!");
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const uri = result.assets[0].uri;
+        console.log("Image URI:", uri);
+        // Do something with the image
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
-  const handleChooseFromGallery = () => {
-    console.log("Opening gallery...");
+  const handleChooseFromGallery = async () => {
+    // Request media library permissions
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      alert("Sorry, we need photo library permissions!");
+      return;
+    }
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const uri = result.assets[0].uri;
+        console.log("Image URI:", uri);
+        // Do something with the image
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
   return (
@@ -23,7 +69,7 @@ export default function HomeScreen() {
       <View className="px-6 pt-16 pb-6">
         <View className="flex-row items-center justify-between">
           <Text className="text-3xl font-bold text-gray-900 dark:text-gray-50">
-            Receipt Scanner
+            Kvitt
           </Text>
 
           {/* Theme Toggle */}
