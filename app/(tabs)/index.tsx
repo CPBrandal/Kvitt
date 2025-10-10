@@ -1,10 +1,15 @@
+import { commonStyles } from "@/constants/styles";
+import { translate } from "@/constants/textMappings";
+import { useAuth } from "@/context/AuthContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { logout } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -16,17 +21,36 @@ import {
 
 export default function HomeScreen() {
   const GOOGLE_CLOUD_API_KEY = Constants.expoConfig?.extra?.googleCloudApiKey;
+  const { user, loading } = useAuth();
 
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [user, loading]);
+
+  if (loading) {
+    return (
+      <View>
+        <Text>{translate("Loading")}</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const handleTakePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
     if (status !== "granted") {
-      alert("Sorry, we need camera permissions to make this work!");
+      alert(translate("CameraPermissionAlert"));
       return;
     }
 
@@ -52,7 +76,7 @@ export default function HomeScreen() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== "granted") {
-      alert("Sorry, we need photo library permissions!");
+      alert(translate("GalleryPermissionAlert"));
       return;
     }
     try {
@@ -131,12 +155,12 @@ export default function HomeScreen() {
       console.log("Detected text:", detectedText);
 
       setResult(detectedText);
-      setLoading(false);
+      //setLoading(false);
 
       Alert.alert("Success!", "Text extracted from image");
     } catch (error) {
       console.error("Full Error:", error);
-      setLoading(false);
+      //setLoading(false);
 
       Alert.alert(
         "Error",
@@ -146,13 +170,13 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+    <View className={`flex-1 ${commonStyles.bgScreen}`}>
       <StatusBar style={isDark ? "light" : "dark"} />
 
       {/* Header with Theme Toggle */}
       <View className="px-6 pt-16 pb-6">
         <View className="flex-row items-center justify-between">
-          <Text className="text-3xl font-bold text-gray-900 dark:text-gray-50">
+          <Text className={`text-3xl font-bold ${commonStyles.text}`}>
             Kvitt
           </Text>
 
@@ -161,7 +185,11 @@ export default function HomeScreen() {
             <Ionicons
               name={isDark ? "moon" : "sunny"}
               size={24}
-              color={isDark ? "#fbbf24" : "#f59e0b"}
+              color={
+                isDark
+                  ? `${commonStyles.imgColorDark}`
+                  : `${commonStyles.imgColorLight}`
+              }
             />
             <Switch
               value={isDark}
@@ -172,22 +200,41 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+      <Text
+        className={`${commonStyles.text} text-2xl font-bold mt-4 text-center`}
+      >
+        {translate("Hello")}, {user.displayName}!
+      </Text>
 
       {/* Main Content - Centered */}
       <View className="flex-1 justify-center px-6">
         {/* Theme Indicator */}
-        <View className="bg-white dark:bg-gray-900 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-800 items-center mb-8">
+        <View
+          className={`${commonStyles.bg} rounded-2xl p-8 border-2 ${commonStyles.border} items-center mb-8`}
+        >
           <Ionicons
             name={isDark ? "moon" : "sunny"}
             size={64}
-            color={isDark ? "#3b82f6" : "#f59e0b"}
+            color={
+              isDark
+                ? `${commonStyles.imgColorDark}`
+                : `${commonStyles.imgColorLight}`
+            }
           />
-          <Text className="text-gray-900 dark:text-gray-50 text-2xl font-bold mt-4">
+          <Text className={`${commonStyles.text} text-2xl font-bold mt-4`}>
             {isDark ? "Dark Mode" : "Light Mode"}
           </Text>
-          <Text className="text-gray-600 dark:text-gray-400 text-center mt-2">
-            Theme follows device settings
-          </Text>
+          <TouchableOpacity
+            className="bg-blue-600 dark:bg-blue-500 rounded-2xl p-5 mb-3 flex-row items-center justify-center"
+            onPress={async () => {
+              await logout();
+              router.replace("/login");
+            }}
+          >
+            <Text className={`${commonStyles.text}`}>
+              {translate("LogOut")}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Action Buttons */}
@@ -198,27 +245,31 @@ export default function HomeScreen() {
         >
           <Ionicons name="camera" size={24} color="white" />
           <Text className="text-white text-lg font-semibold ml-3">
-            Take Photo
+            {translate("TakePicture")}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleChooseFromGallery}
-          className="bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 rounded-2xl p-5 flex-row items-center justify-center"
+          className={`${commonStyles.bg} border-2 ${commonStyles.border} rounded-2xl p-5 flex-row items-center justify-center`}
           activeOpacity={0.8}
         >
           <Ionicons
             name="images"
             size={24}
-            color={isDark ? "#9ca3af" : "#6b7280"}
+            color={
+              isDark
+                ? `${commonStyles.imgColorDark}`
+                : `${commonStyles.imgColorLight}`
+            }
           />
-          <Text className="text-gray-900 dark:text-gray-50 text-lg font-semibold ml-3">
-            Choose from Gallery
+          <Text className={`${commonStyles.text} text-lg font-semibold ml-3`}>
+            {translate("UploadFromGallery")}
           </Text>
         </TouchableOpacity>
         {result ? (
           <ScrollView className="mt-6 bg-gray-100 dark:bg-gray-900 p-4 rounded-lg max-h-96">
-            <Text className="text-sm font-mono text-gray-900 dark:text-gray-50">
+            <Text className={`${commonStyles.text} text-sm font-mono `}>
               {result}
             </Text>
           </ScrollView>
