@@ -47,3 +47,5 @@ app-example
 /android
 
 app.config.js
+
+firebase.ts
