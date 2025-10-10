@@ -53,7 +53,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={28}
-              name="document.fill"
+              name="person.fill"
               color={isDark ? "#3b82f6" : "#f59e0b"}
             />
           ),
