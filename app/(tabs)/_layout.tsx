@@ -1,9 +1,9 @@
-import { Tabs } from "expo-router";
-import React from "react";
-
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { translate } from "@/constants/textMappings";
+import { Tabs } from "expo-router";
 import { useColorScheme } from "nativewind";
+import React from "react";
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
@@ -23,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: translate("Home"),
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={28}
@@ -36,7 +36,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="receipts"
         options={{
-          title: "Mine kvitteringer",
+          title: translate("MyReceits"),
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={28}
@@ -47,13 +47,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="test"
+        name="profile"
         options={{
-          title: "Vision",
+          title: translate("MyProfile"),
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={28}
-              name="eye.fill"
+              name="document.fill"
               color={isDark ? "#3b82f6" : "#f59e0b"}
             />
           ),
