@@ -31,8 +31,11 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+node_modules/
+.expo/
 .env
+*.env
+.env*.local
 
 # typescript
 *.tsbuildinfo
