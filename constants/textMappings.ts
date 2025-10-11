@@ -42,19 +42,26 @@ const translations = {
     en: "Don't have an account? Sign up",
     nb: "Har du ikke en konto? Registrer deg",
   },
+  Settings: { en: "Settings", nb: "Innstillinger" },
+  GoBack: { en: "Go back", nb: "Gå tilbake" },
+  Back: { en: "Back", nb: "Tilbake" },
+  Language: { en: "Language", nb: "Språk" },
+  DarkMode: { en: "Dark Mode", nb: "Mørkt tema" },
+  LightMode: { en: "Light Mode", nb: "Lyst tema" },
 };
 
-type Language = "en" | "nb";
-type TranslationKey = keyof typeof translations;
+export type Language = "en" | "nb";
+export type TranslationKey = keyof typeof translations;
 
-let currentLanguage: Language = "nb";
-
-export const setLanguage = (lang: Language) => {
-  currentLanguage = lang;
+export const getTranslation = (
+  key: TranslationKey,
+  language: Language
+): string => {
+  return translations[key]?.[language] || key;
 };
 
 export const translate = (key: TranslationKey): string => {
-  return translations[key]?.[currentLanguage] || key;
+  return translations[key]?.["en"] || key;
 };
 
 export default translations;
