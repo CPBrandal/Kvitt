@@ -17,7 +17,7 @@ export default function ReceiptScanner() {
           color={isDark ? "#3b82f6" : "#f59e0b"}
         />
         <Text className="text-gray-900 dark:text-gray-50 text-2xl font-bold mt-4">
-          {isDark ? "Dark Mode" : "Light Mode"}
+          {isDark ? translate("DarkMode") : translate("LightMode")}
         </Text>
         <Text className="text-gray-600 dark:text-gray-400 text-center mt-2">
           {translate("Hello")}
