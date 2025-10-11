@@ -25,7 +25,7 @@ export default function Profile() {
             <View className="">
               <TouchableOpacity
                 onPress={() => {
-                  router.push("/settings");
+                  router.push("../settings");
                 }}
                 className={` p-3 rounded-lg`}
               >

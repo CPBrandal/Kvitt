@@ -1,5 +1,6 @@
 // services/receiptParserService.ts
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { functions } from "@/config/firebase";
+import { httpsCallable } from "firebase/functions";
 
 export interface ParsedReceiptData {
   sellerName?: string;
@@ -9,7 +10,7 @@ export interface ParsedReceiptData {
   subtotal?: number;
   vatAmount?: number;
   currency?: string;
-  receiptDate?: string; // Format: YYYY-MM-DD
+  receiptDate?: string;
   receiptNumber?: string;
   items: Array<{
     name: string;
@@ -22,17 +23,6 @@ export interface ParsedReceiptData {
   confidence: number;
 }
 
-/**
- * Parse receipt image using GPT-4 Vision via Firebase Cloud Function
- *
- * @param imageUri - Local image URI from camera or gallery
- * @returns Parsed receipt data
- *
- * @example
- * const parsed = await parseReceiptImage(imageUri);
- * console.log('Total:', parsed.totalAmount);
- * console.log('Seller:', parsed.sellerName);
- */
 export const parseReceiptImage = async (
   imageUri: string
 ): Promise<ParsedReceiptData> => {
@@ -40,26 +30,29 @@ export const parseReceiptImage = async (
     console.log("📸 Converting image to base64...");
     const base64 = await convertImageToBase64(imageUri);
 
-    // Call Firebase Cloud Function
     console.log("🚀 Calling GPT-4 Vision API...");
-    const functions = getFunctions();
-    const parseReceipt = httpsCallable<
-      { imageBase64: string },
-      ParsedReceiptData
-    >(functions, "parseReceipt");
+
+    // ✅ Fixed: Remove the second generic type
+    const parseReceipt = httpsCallable<{ imageBase64: string }>(
+      functions,
+      "parseReceipt"
+    );
 
     const result = await parseReceipt({ imageBase64: base64 });
 
     console.log("✅ Receipt parsed successfully!");
-    console.log("Seller:", result.data.sellerName);
-    console.log("Total:", result.data.totalAmount, result.data.currency);
-    console.log("Items:", result.data.items.length);
 
-    return result.data;
+    // Cast the result.data to our type
+    const data = result.data as ParsedReceiptData;
+
+    console.log("Seller:", data.sellerName);
+    console.log("Total:", data.totalAmount, data.currency);
+    console.log("Items:", data.items.length);
+
+    return data;
   } catch (error: any) {
     console.error("❌ Error parsing receipt:", error);
 
-    // Provide user-friendly error messages
     if (error.code === "unauthenticated") {
       throw new Error("You must be logged in to parse receipts");
     }

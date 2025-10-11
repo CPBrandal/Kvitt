@@ -14,6 +14,7 @@ export default function SettingsScreen() {
   return (
     <>
       <Stack.Screen
+        name="settings"
         options={{
           title: translate("Settings"),
           headerShown: true,

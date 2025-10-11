@@ -1,15 +1,12 @@
 // functions/src/index.ts
-
-import "dotenv/config";
 import * as logger from "firebase-functions/logger";
+import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import OpenAI from "openai";
 
-// Initialize OpenAI with API key from Firebase config
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Define the secret
+const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
 // Interface for parsed receipt
 interface ParsedReceipt {
@@ -34,14 +31,20 @@ interface ParsedReceipt {
 }
 
 // Global function settings
-setGlobalOptions({ region: "europe-west1", maxInstances: 10 });
+setGlobalOptions({ region: "europe-west3", maxInstances: 10 });
 
 export const parseReceipt = onCall(
   {
     timeoutSeconds: 60,
     memory: "256MiB",
+    secrets: [openaiApiKey], // Add this line!
   },
   async (request) => {
+    // Initialize OpenAI inside the function
+    const openai = new OpenAI({
+      apiKey: openaiApiKey.value(),
+    });
+
     if (!request.auth) {
       throw new HttpsError(
         "unauthenticated",
@@ -62,7 +65,7 @@ export const parseReceipt = onCall(
       logger.log(`Parsing receipt for user: ${request.auth.uid}`);
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // Or gpt-4o-mini
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -135,7 +138,7 @@ Important:
       let parsed: ParsedReceipt;
       try {
         parsed = JSON.parse(jsonContent);
-      } catch (parseError) {
+      } catch (_parseError) {
         logger.error("Failed to parse JSON from GPT response:", jsonContent);
         throw new HttpsError(
           "internal",
