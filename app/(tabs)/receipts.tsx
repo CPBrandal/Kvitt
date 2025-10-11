@@ -1,3 +1,4 @@
+import { useTranslate } from "@/hooks/useTranslate";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
 import { Text, View } from "react-native";
@@ -5,6 +6,7 @@ import { Text, View } from "react-native";
 export default function ReceiptScanner() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const translate = useTranslate();
 
   return (
     <View className="flex-1 justify-center px-6 bg-gray-50 dark:bg-gray-950">
@@ -18,7 +20,7 @@ export default function ReceiptScanner() {
           {isDark ? "Dark Mode" : "Light Mode"}
         </Text>
         <Text className="text-gray-600 dark:text-gray-400 text-center mt-2">
-          Theme follows device settings
+          {translate("Hello")}
         </Text>
       </View>
     </View>

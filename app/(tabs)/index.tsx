@@ -1,7 +1,7 @@
 import { commonStyles } from "@/constants/styles";
-import { translate } from "@/constants/textMappings";
 import { useAuth } from "@/context/AuthContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useTranslate } from "@/hooks/useTranslate";
 import { logout } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
@@ -22,6 +22,7 @@ import {
 export default function HomeScreen() {
   const GOOGLE_CLOUD_API_KEY = Constants.expoConfig?.extra?.googleCloudApiKey;
   const { user, loading } = useAuth();
+  const translate = useTranslate();
 
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
