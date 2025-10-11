@@ -37,6 +37,10 @@ node_modules/
 *.env
 .env*.local
 
+/functions/.env
+/functions/.env.local
+/functions/.env.*.local
+
 # typescript
 *.tsbuildinfo
 
