@@ -1,8 +1,10 @@
 import { commonStyles } from "@/constants/styles";
 import { useTranslate } from "@/hooks/useTranslate";
+import { generateReceiptPDF } from "@/services/pdfService";
 import { getReceiptById } from "@/services/receiptService";
 import { Receipt } from "@/types/receipts";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useEffect, useLayoutEffect, useState } from "react";
@@ -49,12 +51,40 @@ export default function ReceiptDetail() {
     }
   };
 
-  const exportReceiptAsPDF = () => {
-    // Placeholder for PDF export functionality
-    Alert.alert(
-      "Export",
-      "Export to PDF functionality is not implemented yet."
-    );
+  const exportReceiptAsPDF = async () => {
+    if (!receipt) return;
+
+    try {
+      // Haptic feedback
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+      // Show loading
+      Alert.alert(
+        translate("Exporting"),
+        translate("GeneratingPDF") || "Generating PDF...",
+        [{ text: "OK" }]
+      );
+
+      // Generate PDF
+      await generateReceiptPDF(receipt);
+
+      // Success feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      Alert.alert(
+        translate("Success"),
+        translate("PDFExported") || "Receipt exported as PDF!",
+        [{ text: "OK" }]
+      );
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert(
+        "Error",
+        translate("PDFExportFailed") || "Failed to export PDF",
+        [{ text: "OK" }]
+      );
+    }
   };
 
   const formatCurrency = (amount: number, currency: string = "NOK") => {
@@ -109,7 +139,7 @@ export default function ReceiptDetail() {
     <View className={`flex-1 ${commonStyles.bgScreen}`}>
       {/* Header */}
       <View className="px-6 pt-16 pb-4 flex-row items-center justify-between">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons
             name="arrow-back"
             size={24}

@@ -155,6 +155,11 @@ const translations = {
     nb: "Er du sikker på at du vil logge ut?",
   },
   SignOut: { en: "Signing out", nb: "Utlogging" },
+  Exporting: { en: "Exporting", nb: "Eksporterer" },
+  GeneratingPDF: { en: "Generating PDF...", nb: "Genererer PDF..." },
+  Success: { en: "Success", nb: "Suksess" },
+  PDFExported: { en: "PDF Exported", nb: "PDF eksportert" },
+  PDFExportFailed: { en: "PDF Export Failed", nb: "Kunne ikke eksportere PDF" },
 };
 
 export type Language = "en" | "nb";
