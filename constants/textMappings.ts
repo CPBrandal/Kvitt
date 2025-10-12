@@ -1,4 +1,3 @@
-// translations.ts
 const translations = {
   WelcomeBack: { en: "Welcome Back", nb: "Velkommen tilbake" },
   Email: { en: "Email", nb: "E-post" },
@@ -8,6 +7,11 @@ const translations = {
   DontHaveAccount: {
     en: "Don't have an account? Sign up",
     nb: "Har du ikke en konto enda? Registrer deg",
+  },
+  LogInFailed: { en: "Login failed", nb: "Innlogging feilet" },
+  PleaseFillAllFields: {
+    en: "Please fill in all fields",
+    nb: "Vennligst fyll inn alle feltene",
   },
   Loading: { en: "Loading...", nb: "Laster..." },
   LoadingReceipts: { en: "Loading receipts...", nb: "Laster kvitteringer..." },
@@ -93,6 +97,23 @@ const translations = {
   Qty: { en: "Qty", nb: "Ant" },
   ExportToPDF: { en: "Export to PDF", nb: "Eksporter som PDF" },
   LogoutConfirm: { en: "Logged out", nb: "Logget ut" },
+  DeleteAccount: { en: "Delete Account", nb: "Slett konto" },
+  DeleteAccountConfirm: {
+    en: "Are you sure you want to delete your account? This action cannot be undone.",
+    nb: "Er du sikker på at du vil slette kontoen din? Denne handlingen kan ikke angres.",
+  },
+  User: { en: "User", nb: "Bruker" },
+  MemberSince: { en: "Member since", nb: "Medlem siden" },
+  Statistics: { en: "Statistics", nb: "Statistikk" },
+  TotalReceipts: { en: "Total Receipts", nb: "Totalt antall kvitteringer" },
+  TotalSpent: { en: "Total Spent", nb: "Totalt brukt" },
+  ThisMonth: { en: "This Month", nb: "Denne måneden" },
+  Average: { en: "Average", nb: "Gjennomsnitt" },
+  QuickActions: { en: "Quick Actions", nb: "Hurtigvalg" },
+  ScanReceipt: { en: "Scan Receipt", nb: "Skann kvittering" },
+  ViewAllReceipts: { en: "View All Receipts", nb: "Se alle kvitteringer" },
+  ExportData: { en: "Export Data", nb: "Eksporter data" },
+  Account: { en: "Account", nb: "Konto" },
 };
 
 export type Language = "en" | "nb";

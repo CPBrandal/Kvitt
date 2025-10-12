@@ -1,15 +1,9 @@
+import { commonStyles } from "@/constants/styles";
 import { translate } from "@/constants/textMappings";
 import { signIn } from "@/services/auth";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -18,7 +12,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Error", translate("PleaseFillAllFields"));
       return;
     }
 
@@ -29,7 +23,7 @@ export default function LoginScreen() {
     if (result.success) {
       router.replace("/");
     } else {
-      Alert.alert("Login Failed", result.error);
+      Alert.alert(translate("LogInFailed"), result.error);
     }
   };
 
@@ -48,53 +42,27 @@ export default function LoginScreen() {
           autoCapitalize="none"
         />
         <TextInput
-          className="border border-gray-300 dark:border-gray-700 p-4 rounded-lg mb-4 text-base"
+          className="border border-gray-300 dark:border-gray-700 p-4 rounded-lg mb-4 text-base text-gray-900 dark:text-gray-50"
           placeholder={translate("Password")}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
         <TouchableOpacity
-          style={styles.button}
+          className="bg-blue-500 rounded-lg mt-4 text-center p-4"
           onPress={handleLogin}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
-            {loading ? "Logging in..." : translate("Login")}
+          <Text className="font-bold text-lg text-white">
+            {loading ? translate("LoggingIn") : translate("Login")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/signup")}>
-          <Text style={styles.link}>{translate("NoAccount")}</Text>
+          <Text className={`${commonStyles.text} text-center mt-20`}>
+            {translate("NoAccount")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  link: {
-    color: "#007AFF",
-    textAlign: "center",
-    marginTop: 20,
-  },
-});

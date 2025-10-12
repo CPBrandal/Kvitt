@@ -1,6 +1,6 @@
 import { commonStyles } from "@/constants/styles";
-import { translate } from "@/constants/textMappings";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslate } from "@/hooks/useTranslate";
 import { logout } from "@/services/auth";
 import { getUserReceipts } from "@/services/receiptService";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,6 +28,7 @@ export default function Profile() {
     thisMonthAmount: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
+  const translate = useTranslate();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -71,14 +72,12 @@ export default function Profile() {
       setLoadingStats(true);
       const receipts = await getUserReceipts(user.uid);
 
-      // Calculate statistics
       const totalAmount = receipts.reduce(
         (sum, r) => sum + (r.totalAmount || 0),
         0
       );
       const avgAmount = receipts.length > 0 ? totalAmount / receipts.length : 0;
 
-      // This month's spending
       const now = new Date();
       const thisMonthReceipts = receipts.filter((r) => {
         const receiptDate = new Date(r.receiptDate);
@@ -123,24 +122,20 @@ export default function Profile() {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
-      "Delete Account",
-      "Are you sure you want to delete your account? This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
+    Alert.alert(translate("DeleteAccount"), translate("DeleteAccountConfirm"), [
+      {
+        text: translate("Cancel"),
+        style: "cancel",
+      },
+      {
+        text: translate("Delete"),
+        style: "destructive",
+        onPress: () => {
+          // TODO: Implement account deletion
+          Alert.alert("Coming Soon", "Account deletion feature coming soon");
         },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            // TODO: Implement account deletion
-            Alert.alert("Coming Soon", "Account deletion feature coming soon");
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   if (loading || !user) {
@@ -172,13 +167,13 @@ export default function Profile() {
             />
           </View>
           <Text className={`${commonStyles.text} text-2xl font-bold`}>
-            {user.displayName || "User"}
+            {user.displayName || translate("User")}
           </Text>
           <Text className="text-gray-500 dark:text-gray-400 text-center mt-2">
             {user.email}
           </Text>
           <Text className="text-gray-400 dark:text-gray-500 text-xs mt-2">
-            Member since{" "}
+            {translate("MemberSince")}{" "}
             {new Date(user.metadata.creationTime || "").toLocaleDateString(
               "nb-NO"
             )}
@@ -187,7 +182,7 @@ export default function Profile() {
 
         {/* Statistics Section */}
         <Text className={`${commonStyles.text} text-xl font-bold mb-3`}>
-          Statistics
+          {translate("Statistics")}
         </Text>
 
         {loadingStats ? (
@@ -206,7 +201,7 @@ export default function Profile() {
                 {stats.totalReceipts}
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                Total Receipts
+                {translate("TotalReceipts")}
               </Text>
             </View>
 
@@ -220,7 +215,7 @@ export default function Profile() {
                 {stats.totalAmount.toFixed(0)} kr
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                Total Spent
+                {translate("TotalSpent")}
               </Text>
             </View>
 
@@ -234,7 +229,7 @@ export default function Profile() {
                 {stats.thisMonthAmount.toFixed(0)} kr
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                This Month
+                {translate("ThisMonth")}
               </Text>
             </View>
 
@@ -248,7 +243,7 @@ export default function Profile() {
                 {stats.avgAmount.toFixed(0)} kr
               </Text>
               <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                Average
+                {translate("Average")}
               </Text>
             </View>
           </View>
@@ -256,7 +251,7 @@ export default function Profile() {
 
         {/* Quick Actions */}
         <Text className={`${commonStyles.text} text-xl font-bold mb-3`}>
-          Quick Actions
+          {translate("QuickActions")}
         </Text>
 
         <TouchableOpacity
@@ -272,7 +267,7 @@ export default function Profile() {
               }
             />
             <Text className={`${commonStyles.text} text-lg font-semibold ml-3`}>
-              Scan Receipt
+              {translate("ScanReceipt")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
@@ -291,7 +286,7 @@ export default function Profile() {
               }
             />
             <Text className={`${commonStyles.text} text-lg font-semibold ml-3`}>
-              View All Receipts
+              {translate("ViewAllReceipts")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
@@ -312,7 +307,7 @@ export default function Profile() {
               }
             />
             <Text className={`${commonStyles.text} text-lg font-semibold ml-3`}>
-              Export Data
+              {translate("ExportData")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
@@ -320,7 +315,7 @@ export default function Profile() {
 
         {/* Account Management */}
         <Text className={`${commonStyles.text} text-xl font-bold mb-3`}>
-          Account
+          {translate("Account")}
         </Text>
 
         <TouchableOpacity
@@ -330,7 +325,7 @@ export default function Profile() {
           <View className="flex-row items-center">
             <Ionicons name="log-out-outline" size={24} color="#ef4444" />
             <Text className="text-red-500 text-lg font-semibold ml-3">
-              Logout
+              {translate("LogOut")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
@@ -343,7 +338,7 @@ export default function Profile() {
           <View className="flex-row items-center">
             <Ionicons name="trash-outline" size={24} color="#ef4444" />
             <Text className="text-red-500 text-lg font-semibold ml-3">
-              Delete Account
+              {translate("DeleteAccount")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#ef4444" />
