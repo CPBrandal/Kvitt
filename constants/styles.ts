@@ -17,5 +17,6 @@ export const commonStyles = {
   bgScreen: "bg-gray-50 dark:bg-gray-950",
   border: "border-gray-200 dark:border-gray-800",
   imgColorDark: "#3b82f6",
-  imgColorLight: "#f59e0b",
+  imgColorLight: "#3b82f6",
+  color: "#f59e0b",
 };

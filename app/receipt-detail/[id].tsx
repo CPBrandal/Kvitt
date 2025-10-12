@@ -108,7 +108,7 @@ export default function ReceiptDetail() {
   return (
     <View className={`flex-1 ${commonStyles.bgScreen}`}>
       {/* Header */}
-      <View className="px-6 pt-16 pb-4 flex-row items-center">
+      <View className="px-6 pt-16 pb-4 flex-row items-center justify-between">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Ionicons
             name="arrow-back"
@@ -118,18 +118,14 @@ export default function ReceiptDetail() {
             }
           />
         </TouchableOpacity>
-        <Text
-          className={`text-2xl font-bold ${commonStyles.text} flex-1 text-center`}
-        >
-          {translate("ReceiptsDetails")}
-        </Text>
+
         <TouchableOpacity
           onPress={() => {
             exportReceiptAsPDF();
           }}
           className="ml-4"
         >
-          <Text className={`${commonStyles.text} font-semibold`}>
+          <Text className={`text-blue-600 font-semibold text-right`}>
             {translate("ExportToPDF")}
           </Text>
         </TouchableOpacity>

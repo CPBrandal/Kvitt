@@ -150,6 +150,11 @@ const translations = {
   PrivacyPolicy: { en: "Privacy Policy", nb: "Personvern" },
   NotificationsOn: { en: "Notifications On", nb: "Varslinger på" },
   NotificationsOff: { en: "Notifications Off", nb: "Varslinger av" },
+  AreYouSureYouWantToLogOut: {
+    en: "Are you sure you want to log out?",
+    nb: "Er du sikker på at du vil logge ut?",
+  },
+  SignOut: { en: "Signing out", nb: "Utlogging" },
 };
 
 export type Language = "en" | "nb";

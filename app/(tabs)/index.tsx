@@ -6,7 +6,6 @@ import { logout } from "@/services/auth";
 import { parseReceiptImage } from "@/services/receiptParserService";
 import { createReceipt } from "@/services/receiptService";
 import { Ionicons } from "@expo/vector-icons";
-import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -173,13 +172,39 @@ export default function HomeScreen() {
           </Text>
 
           <TouchableOpacity
-            onPress={async () => {
+            onPress={() => {
               if (user) {
-                return await logout();
+                Alert.alert(
+                  translate("SignOut"),
+                  translate("AreYouSureYouWantToLogOut"),
+                  [
+                    {
+                      text: translate("Cancel"),
+                      style: "cancel",
+                    },
+                    {
+                      text: translate("LogOut"),
+                      style: "destructive",
+                      onPress: async () => {
+                        try {
+                          await logout();
+                          router.replace("/login");
+                        } catch (error) {
+                          console.error("Logout error:", error);
+                          Alert.alert(
+                            "Error",
+                            "Failed to logout. Please try again."
+                          );
+                        }
+                      },
+                    },
+                  ]
+                );
+              } else {
+                router.push("/login");
               }
-              router.push("/login");
             }}
-            className={` p-3 rounded-lg`}
+            className="p-3 rounded-lg"
           >
             <Ionicons
               name={user ? "log-out" : "log-in"}

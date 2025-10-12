@@ -1,5 +1,6 @@
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { commonStyles } from "@/constants/styles";
 import { useTranslate } from "@/hooks/useTranslate";
 import { Tabs } from "expo-router";
 import { useColorScheme } from "nativewind";
@@ -29,7 +30,9 @@ export default function TabLayout() {
             <IconSymbol
               size={28}
               name="house.fill"
-              color={isDark ? "#3b82f6" : "#f59e0b"}
+              color={
+                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+              }
             />
           ),
         }}
@@ -42,7 +45,9 @@ export default function TabLayout() {
             <IconSymbol
               size={28}
               name="document.fill"
-              color={isDark ? "#3b82f6" : "#f59e0b"}
+              color={
+                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+              }
             />
           ),
         }}
@@ -55,7 +60,9 @@ export default function TabLayout() {
             <IconSymbol
               size={28}
               name="person.fill"
-              color={isDark ? "#3b82f6" : "#f59e0b"}
+              color={
+                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+              }
             />
           ),
         }}
