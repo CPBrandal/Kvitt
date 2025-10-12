@@ -6,13 +6,14 @@ import { Receipt } from "@/types/receipts";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   RefreshControl,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -24,6 +25,7 @@ export default function ReceiptScanner() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -49,10 +51,20 @@ export default function ReceiptScanner() {
     }
   };
 
+  const filteredReceipts = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return receipts;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return receipts.filter((receipt) =>
+      receipt.sellerName?.toLowerCase().includes(query)
+    );
+  }, [receipts, searchQuery]);
+
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      // Add haptic feedback
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       await loadReceipts(true);
     } finally {
@@ -74,7 +86,6 @@ export default function ReceiptScanner() {
           style: "destructive",
           onPress: async () => {
             try {
-              // Haptic feedback
               Haptics.notificationAsync(
                 Haptics.NotificationFeedbackType.Success
               );
@@ -90,6 +101,11 @@ export default function ReceiptScanner() {
         },
       ]
     );
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const formatCurrency = (amount: number, currency: string = "NOK") => {
@@ -132,7 +148,6 @@ export default function ReceiptScanner() {
           activeOpacity={0.7}
         >
           <View className="flex-row justify-between items-start">
-            {/* Left side - Store info */}
             <View className="flex-1 mr-3">
               <Text
                 className={`${commonStyles.text} text-lg font-semibold`}
@@ -150,7 +165,6 @@ export default function ReceiptScanner() {
               )}
             </View>
 
-            {/* Right side - Price and arrow */}
             <View className="items-end">
               <Text className={`${commonStyles.text} text-lg font-bold`}>
                 {formatCurrency(item.totalAmount, item.currency)}
@@ -172,7 +186,6 @@ export default function ReceiptScanner() {
             </View>
           </View>
 
-          {/* VAT indicator */}
           {item.hasVAT && item.vatAmount && (
             <View className="flex-row items-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               <Text className="text-gray-500 dark:text-gray-400 text-xs">
@@ -215,20 +228,73 @@ export default function ReceiptScanner() {
         </Text>
       </View>
 
+      {/* Search Bar */}
+      <View className="px-6 pb-4">
+        <View
+          className={`${commonStyles.bg} border ${commonStyles.border} rounded-xl flex-row items-center px-4 py-3`}
+        >
+          <Ionicons
+            name="search"
+            size={20}
+            color="#9ca3af"
+            style={{ marginRight: 8 }}
+          />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={translate("SearchByStore")}
+            placeholderTextColor="#9ca3af"
+            className={`flex-1 ${commonStyles.text} text-base`}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={clearSearch} activeOpacity={0.7}>
+              <Ionicons name="close-circle" size={20} color="#9ca3af" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Search Results Count */}
+        {searchQuery.trim() && (
+          <Text className="text-gray-500 dark:text-gray-400 text-sm mt-2">
+            {filteredReceipts.length}{" "}
+            {filteredReceipts.length === 1
+              ? translate("Result")
+              : translate("Results")}
+          </Text>
+        )}
+      </View>
+
       {/* Receipt List */}
-      {receipts.length === 0 ? (
+      {filteredReceipts.length === 0 ? (
         <View className="flex-1 justify-center items-center px-6">
           <Ionicons name="receipt-outline" size={64} color="#9ca3af" />
           <Text className={`${commonStyles.text} text-xl font-semibold mt-4`}>
-            {translate("NoReceipts")}
+            {searchQuery.trim()
+              ? translate("NoResultsFound")
+              : translate("NoReceipts")}
           </Text>
           <Text className="text-gray-500 dark:text-gray-400 text-center mt-2">
-            {translate("ScanYourFirstReceipt")}
+            {searchQuery.trim()
+              ? translate("TryDifferentSearch")
+              : translate("ScanYourFirstReceipt")}
           </Text>
+          {searchQuery.trim() && (
+            <TouchableOpacity
+              onPress={clearSearch}
+              className="bg-blue-600 dark:bg-blue-500 rounded-xl px-6 py-3 mt-4"
+              activeOpacity={0.8}
+            >
+              <Text className="text-white font-semibold">
+                {translate("ClearSearch")}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       ) : (
         <FlatList
-          data={receipts}
+          data={filteredReceipts}
           renderItem={renderReceiptItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}

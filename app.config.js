@@ -25,10 +25,9 @@ export default {
       package: "com.cpbrandal.kvitt", // ADD THIS
       googleServicesFile: "./google-services.json", // ADD THIS
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
+        backgroundColor: "#3D5A5E",
+        foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
       },
       permissions: [
         "CAMERA",

@@ -32,7 +32,16 @@ export default function SignUpScreen() {
     setLoading(false);
 
     if (result.success) {
-      router.replace("/");
+      Alert.alert(
+        "Check Your Email",
+        "We've sent you a verification email. Please verify your email before logging in.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.replace("/verify-email"),
+          },
+        ]
+      );
     } else {
       Alert.alert("Sign Up Failed", result.error);
     }
