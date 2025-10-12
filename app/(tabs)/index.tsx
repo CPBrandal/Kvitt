@@ -1,10 +1,10 @@
-import { parseReceiptImage } from "@/app/services/receiptParserService";
-import { createReceipt } from "@/app/services/receiptService";
 import { commonStyles } from "@/constants/styles";
 import { useAuth } from "@/context/AuthContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslate } from "@/hooks/useTranslate";
 import { logout } from "@/services/auth";
+import { parseReceiptImage } from "@/services/receiptParserService";
+import { createReceipt } from "@/services/receiptService";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -12,7 +12,14 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
   const GOOGLE_CLOUD_API_KEY = Constants.expoConfig?.extra?.googleCloudApiKey;
@@ -52,7 +59,7 @@ export default function HomeScreen() {
     try {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
-        allowsEditing: true,
+        allowsEditing: false,
         quality: 1,
       });
 
@@ -133,7 +140,7 @@ export default function HomeScreen() {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
-        allowsEditing: true,
+        allowsEditing: false,
         quality: 1,
       });
 
@@ -224,6 +231,20 @@ export default function HomeScreen() {
   return (
     <View className={`flex-1 ${commonStyles.bgScreen}`}>
       <StatusBar style={isDark ? "light" : "dark"} />
+
+      {isLoading && (
+        <View className="absolute inset-0 z-50 bg-black/50 justify-center items-center">
+          <View className={`${commonStyles.bg} rounded-2xl p-8 items-center`}>
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text className={`${commonStyles.text} mt-4 text-lg font-semibold`}>
+              {translate("ProcessingReceipt")}
+            </Text>
+            <Text className="text-gray-500 dark:text-gray-400 mt-2 text-center">
+              {translate("ThisMightTakeFewSeconds")}
+            </Text>
+          </View>
+        </View>
+      )}
 
       {/* Header with Theme Toggle */}
       <View className="px-6 pt-16 pb-6">

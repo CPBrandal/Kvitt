@@ -1,6 +1,6 @@
 // services/receiptService.ts
-import { Receipt } from "@/app/types/receipts";
 import { db, storage } from "@/config/firebase";
+import { Receipt } from "@/types/receipts";
 import {
   addDoc,
   collection,
@@ -8,7 +8,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  orderBy,
   query,
   serverTimestamp,
   updateDoc,
@@ -94,8 +93,8 @@ export const getUserReceipts = async (userId: string): Promise<Receipt[]> => {
   try {
     const q = query(
       collection(db, RECEIPTS_COLLECTION),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      where("userId", "==", userId)
+      //orderBy("createdAt", "desc")
     );
 
     const querySnapshot = await getDocs(q);
@@ -201,9 +200,9 @@ export const searchReceiptsBySeller = async (
       collection(db, RECEIPTS_COLLECTION),
       where("userId", "==", userId),
       where("sellerName", ">=", sellerName),
-      where("sellerName", "<=", sellerName + "\uf8ff"),
-      orderBy("sellerName"),
-      orderBy("createdAt", "desc")
+      where("sellerName", "<=", sellerName + "\uf8ff")
+      //orderBy("sellerName"),
+      //orderBy("createdAt", "desc")
     );
 
     const querySnapshot = await getDocs(q);
@@ -237,8 +236,8 @@ export const getReceiptsByCategory = async (
     const q = query(
       collection(db, RECEIPTS_COLLECTION),
       where("userId", "==", userId),
-      where("category", "==", category),
-      orderBy("createdAt", "desc")
+      where("category", "==", category)
+      //orderBy("createdAt", "desc")
     );
 
     const querySnapshot = await getDocs(q);

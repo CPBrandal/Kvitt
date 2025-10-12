@@ -48,6 +48,15 @@ const translations = {
   Language: { en: "Language", nb: "Språk" },
   DarkMode: { en: "Dark Mode", nb: "Mørkt tema" },
   LightMode: { en: "Light Mode", nb: "Lyst tema" },
+  Receipts: { en: "Receipts", nb: "Kvitteringer" },
+  ProcessingReceipt: {
+    en: "Processing receipt...",
+    nb: "Behandler kvittering...",
+  },
+  ThisMightTakeFewSeconds: {
+    en: "This might take a few seconds",
+    nb: "Dette kan ta noen sekunder",
+  },
 };
 
 export type Language = "en" | "nb";
