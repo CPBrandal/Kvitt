@@ -8,6 +8,7 @@ const translations = {
     en: "Don't have an account? Sign up",
     nb: "Har du ikke en konto enda? Registrer deg",
   },
+  SignupFailed: { en: "Sign Up failed", nb: "Registrering feilet" },
   LogInFailed: { en: "Login failed", nb: "Innlogging feilet" },
   PleaseFillAllFields: {
     en: "Please fill in all fields",
@@ -160,6 +161,32 @@ const translations = {
   Success: { en: "Success", nb: "Suksess" },
   PDFExported: { en: "PDF Exported", nb: "PDF eksportert" },
   PDFExportFailed: { en: "PDF Export Failed", nb: "Kunne ikke eksportere PDF" },
+  PasswordLengthRequirement: {
+    en: "Password must be at least 8 characters",
+    nb: "Passord må være minst 8 tegn",
+  },
+  PasswordLength: {
+    en: "Password (min 8 characters)",
+    nb: "Passord (minst 8 tegn)",
+  },
+  CheckYourEmail: {
+    en: "Check Your Email",
+    nb: "Sjekk e-posten din",
+  },
+  VerificationEmailSent: {
+    en: "We've sent you a verification email. Please verify your email before logging in. Remember to check your spam folder too!",
+    nb: "Vi har sendt deg en verifiserings-e-post. Vennligst verifiser e-posten din før du logger inn. Husk også å sjekke spam-mappen din!",
+  },
+  CreateAccount: { en: "Create Account", nb: "Opprett konto" },
+  FullName: { en: "Full Name", nb: "Fullt navn" },
+  Signup: { en: "Sign Up", nb: "Registrer deg" },
+  CreatingAccount: { en: "Creating account...", nb: "Oppretter konto..." },
+  AlreadyHaveAccount: {
+    en: "Already have an account? Login",
+    nb: "Har du allerede en konto? Logg inn",
+  },
+  Or: { en: "Or", nb: "Eller" },
+  ContinueWithGoogle: { en: "Continue with Google", nb: "Fortsett med Google" },
 };
 
 export type Language = "en" | "nb";

@@ -1,29 +1,25 @@
+import { commonStyles } from "@/constants/styles";
+import { useTranslate } from "@/hooks/useTranslate";
 import { signUp } from "@/services/auth";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function SignUpScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const translate = useTranslate();
 
   const handleSignUp = async () => {
     if (!name || !email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Error", translate("PleaseFillAllFields"));
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert("Error", "Password must be at least 8 characters");
+      Alert.alert("Error", translate("PasswordLengthRequirement"));
       return;
     }
 
@@ -33,8 +29,8 @@ export default function SignUpScreen() {
 
     if (result.success) {
       Alert.alert(
-        "Check Your Email",
-        "We've sent you a verification email. Please verify your email before logging in.",
+        translate("CheckYourEmail"),
+        translate("VerificationEmailSent"),
         [
           {
             text: "OK",
@@ -43,88 +39,52 @@ export default function SignUpScreen() {
         ]
       );
     } else {
-      Alert.alert("Sign Up Failed", result.error);
+      Alert.alert(translate("SignupFailed"), result.error);
     }
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-950 justify-center">
+    <View className={`${commonStyles.bgScreen} flex-1 justify-center`}>
       <View className="bg-white dark:bg-gray-900 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-800 mb-8 justifyContent-center">
-        <Text style={styles.title}>Create Account</Text>
+        <Text className="font-bold mb-10 text-center text-2xl text-gray-900 dark:text-gray-50">
+          {translate("CreateAccount")}
+        </Text>
         <TextInput
-          style={styles.input}
-          placeholder="Full Name"
+          className={`${commonStyles.border} border p-4 rounded-lg mb-4 ${commonStyles.text}`}
+          placeholder={translate("FullName")}
           value={name}
           onChangeText={setName}
         />
         <TextInput
-          style={styles.input}
-          placeholder="Email"
+          className={`${commonStyles.border} border p-4 rounded-lg mb-4 ${commonStyles.text}`}
+          placeholder={translate("Email")}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
         <TextInput
-          style={styles.input}
-          placeholder="Password (min 6 characters)"
+          className={`${commonStyles.border} border p-4 rounded-lg mb-4 ${commonStyles.text}`}
+          placeholder={translate("PasswordLength")}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
         <TouchableOpacity
-          style={styles.button}
+          className="bg-blue-600 rounded-lg mt-4 p-4"
           onPress={handleSignUp}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
-            {loading ? "Creating account..." : "Sign Up"}
+          <Text className={`text-white text-center font-bold text-lg`}>
+            {loading ? translate("CreatingAccount") : translate("Signup")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.replace("/login")}>
-          <Text style={styles.link}>Already have an account? Login</Text>
+          <Text className="text-[#007AFF] text-center mt-4">
+            {translate("AlreadyHaveAccount")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 30,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  link: {
-    color: "#007AFF",
-    textAlign: "center",
-    marginTop: 20,
-  },
-});

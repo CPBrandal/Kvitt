@@ -167,7 +167,6 @@ export default function HomeScreen() {
           </View>
         </View>
       )}
-
       {/* Header with Theme Toggle */}
       <View className="px-6 pt-16 pb-6">
         <View className="flex-row items-center justify-between">
@@ -263,6 +262,14 @@ export default function HomeScreen() {
           <Text className={`${commonStyles.text} text-lg font-semibold ml-3`}>
             {translate("UploadFromGallery")}
           </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          className={`${commonStyles.bg} border-2 ${commonStyles.border} rounded-2xl p-5 flex-row items-center justify-center`}
+          onPress={() => {
+            router.push("/signup");
+          }}
+        >
+          <Text>Signup</Text>
         </TouchableOpacity>
       </View>
     </View>

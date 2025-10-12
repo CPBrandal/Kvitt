@@ -1,13 +1,19 @@
 import { auth } from "@/config/firebase";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   sendEmailVerification,
   sendPasswordResetEmail,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
   User,
 } from "firebase/auth";
+
+WebBrowser.maybeCompleteAuthSession();
 
 // Sign up with email and password
 export const signUp = async (email: string, password: string, name: string) => {
@@ -125,4 +131,29 @@ export const resetPassword = async (email: string) => {
 // Get current user
 export const getCurrentUser = (): User | null => {
   return auth.currentUser;
+};
+
+export const useGoogleAuth = () => {
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+  });
+
+  return { request, response, promptAsync };
+};
+
+export const signInWithGoogle = async (idToken: string) => {
+  try {
+    const credential = GoogleAuthProvider.credential(idToken);
+    const userCredential = await signInWithCredential(auth, credential);
+
+    return {
+      success: true,
+      user: userCredential.user,
+      emailVerified: true,
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 };

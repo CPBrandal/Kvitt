@@ -15,7 +15,7 @@ export const commonStyles = {
   textMuted: "text-gray-600 dark:text-gray-400",
   bg: "bg-white dark:bg-gray-900",
   bgScreen: "bg-gray-50 dark:bg-gray-950",
-  border: "border-gray-200 dark:border-gray-800",
+  border: "border-gray-300 dark:border-gray-700",
   imgColorDark: "#3b82f6",
   imgColorLight: "#3b82f6",
   color: "#f59e0b",
