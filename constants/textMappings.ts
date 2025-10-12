@@ -114,6 +114,42 @@ const translations = {
   ViewAllReceipts: { en: "View All Receipts", nb: "Se alle kvitteringer" },
   ExportData: { en: "Export Data", nb: "Eksporter data" },
   Account: { en: "Account", nb: "Konto" },
+  SearchByStore: { en: "Search by store...", nb: "Søk etter butikk..." },
+  Result: { en: "Result", nb: "Resultat" },
+  Results: { en: "Results", nb: "Resultater" },
+  NoResultsFound: { en: "No results found", nb: "Ingen resultater funnet" },
+  TryDifferentSearch: {
+    en: "Try a different search term",
+    nb: "Prøv et annet søkeord",
+  },
+  ClearSearch: { en: "Clear search", nb: "Tøm søk" },
+  Apperance: { en: "Appearance", nb: "Utseende" },
+  DarkModeOn: { en: "Dark Mode On", nb: "Mørkt tema på" },
+  DarkModeOff: { en: "Dark Mode Off", nb: "Mørkt tema av" },
+  BackupData: { en: "Backup Data", nb: "Sikkerhetskopier data" },
+  ClearCache: { en: "Clear Cache", nb: "Tøm cache" },
+  ClearCacheSubtitle: {
+    en: "Free up storage space",
+    nb: "Frigjør lagringsplass",
+  },
+  Clear: { en: "Clear", nb: "Tøm" },
+  BackupSubtitle: {
+    en: "Export your receipts",
+    nb: "Eksporter dine kvitteringer",
+  },
+  ClearCacheConfirm: {
+    en: "This will clear temporary files",
+    nb: "Dette vil tømme midlertidige filer",
+  },
+  Notifications: { en: "Notifications", nb: "Varslinger" },
+  PushNotifications: { en: "Push Notifications", nb: "Push-varslinger" },
+  About: { en: "About", nb: "Om" },
+  Version: { en: "Version", nb: "Versjon" },
+  TermsOfService: { en: "Terms of Service", nb: "Vilkår for bruk" },
+  Help: { en: "Help", nb: "Hjelp" },
+  PrivacyPolicy: { en: "Privacy Policy", nb: "Personvern" },
+  NotificationsOn: { en: "Notifications On", nb: "Varslinger på" },
+  NotificationsOff: { en: "Notifications Off", nb: "Varslinger av" },
 };
 
 export type Language = "en" | "nb";
