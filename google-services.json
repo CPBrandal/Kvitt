@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "946804735379",
+    "project_id": "kvitt-8ede5",
+    "storage_bucket": "kvitt-8ede5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946804735379:android:1f3ae09dfab35d408d3c66",
+        "android_client_info": {
+          "package_name": "com.cpbrandal.kvitt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "946804735379-oqlgm1utrf8d2orjh8o4ir792ej6uhev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCstHbsQTGiMKQe3gKGkQDtLPCbJ6jbKdg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "946804735379-oqlgm1utrf8d2orjh8o4ir792ej6uhev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
