@@ -24,10 +24,20 @@ export const generateReceiptPDF = async (receipt: Receipt): Promise<string> => {
     let imageBase64 = "";
     if (receipt.imageUrl) {
       try {
-        // Download the image to cache and read as base64
-        const tempFile = new File(Paths.cache, "receipt_temp.jpg");
+        // Use a unique temporary filename to avoid conflicts
+        const tempFileName = `receipt_temp_${Date.now()}.jpg`;
+        const tempFile = new File(Paths.cache, tempFileName);
+
+        // Delete if exists (shouldn't happen with timestamp, but just in case)
+        if (await tempFile.exists) {
+          await tempFile.delete();
+        }
+
         await File.downloadFileAsync(receipt.imageUrl, tempFile);
         imageBase64 = await tempFile.base64();
+
+        // Clean up temp file after reading
+        await tempFile.delete();
       } catch (error) {
         console.warn("Could not load receipt image:", error);
       }
@@ -183,20 +193,30 @@ export const generateReceiptPDF = async (receipt: Receipt): Promise<string> => {
     const { uri } = await Print.printToFileAsync({ html });
 
     // --- Move PDF to permanent directory ---
-    const fileName = `${
-      receipt.sellerName?.replace(/[^a-z0-9]/gi, "_") || "receipt"
-    }_${formattedDate.replace(/\//g, "-")}.pdf`;
+    // Create a unique filename with timestamp to avoid conflicts
+    const timestamp = Date.now();
+    const storeName =
+      receipt.sellerName?.replace(/[^a-z0-9]/gi, "_") || "receipt";
+    const dateStr = formattedDate.replace(/\//g, "-");
+    const fileName = `${storeName}_${dateStr}_${timestamp}.pdf`;
 
     // Create a File instance from the temporary PDF
     const tempPdf = new File(uri);
 
     // Create the destination directory if it doesn't exist
     const pdfDirectory = new Directory(Paths.document, "receipts");
-    pdfDirectory.create({ intermediates: true });
+    if (!(await pdfDirectory.exists)) {
+      await pdfDirectory.create({ intermediates: true });
+    }
+
+    // Create destination file and delete if it already exists
+    const destinationFile = new File(pdfDirectory, fileName);
+    if (await destinationFile.exists) {
+      await destinationFile.delete();
+    }
 
     // Move the file to the permanent location
-    const destinationFile = new File(pdfDirectory, fileName);
-    tempPdf.move(destinationFile);
+    await tempPdf.move(destinationFile);
 
     // --- Share the PDF or alert path ---
     if (await Sharing.isAvailableAsync()) {
@@ -226,7 +246,7 @@ export const exportReceiptAsPDF = async (receipt: Receipt) => {
     ]);
     await generateReceiptPDF(receipt);
     Alert.alert("Suksess!", "Kvittering eksportert som PDF", [{ text: "OK" }]);
-  } catch {
+  } catch (error) {
     Alert.alert("Feil", "Kunne ikke eksportere kvittering", [{ text: "OK" }]);
   }
 };

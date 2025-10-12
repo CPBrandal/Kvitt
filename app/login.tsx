@@ -1,14 +1,16 @@
 import { commonStyles } from "@/constants/styles";
-import { translate } from "@/constants/textMappings";
-import { signIn, useGoogleAuth, signInWithGoogle } from "@/services/auth"; // All from auth.ts now
+import { useTranslate } from "@/hooks/useTranslate";
+import { signIn, signInWithGoogle, useGoogleAuth } from "@/services/auth"; // All from auth.ts now
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const translate = useTranslate();
+  const useGoogleLogin = false;
 
   // Google Sign-In
   const { request, response, promptAsync } = useGoogleAuth();
@@ -83,25 +85,27 @@ export default function LoginScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Divider */}
-        <View className="flex-row items-center my-6">
-          <View className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
-          <Text className="mx-4 text-gray-500 dark:text-gray-400">
-            {translate("Or")}
-          </Text>
-          <View className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
-        </View>
+        {useGoogleLogin && (
+          <>
+            <View className="flex-row items-center my-6">
+              <View className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+              <Text className="mx-4 text-gray-500 dark:text-gray-400">
+                {translate("Or")}
+              </Text>
+              <View className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+            </View>
 
-        {/* Google Sign-In Button */}
-        <TouchableOpacity
-          className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-4 flex-row items-center justify-center"
-          onPress={() => promptAsync()}
-          disabled={!request || loading}
-        >
-          <Text className="text-gray-900 dark:text-gray-50 text-center font-semibold text-lg">
-            {translate("ContinueWithGoogle")}
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-4 flex-row items-center justify-center"
+              onPress={() => promptAsync()}
+              disabled={!request || loading}
+            >
+              <Text className="text-gray-900 dark:text-gray-50 text-center font-semibold text-lg">
+                {translate("ContinueWithGoogle")}
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
 
         <TouchableOpacity onPress={() => router.push("/signup")}>
           <Text className="text-[#007AFF] text-center mt-4">

@@ -1,3 +1,4 @@
+import { LoadingModal } from "@/components/loadingModal";
 import { commonStyles } from "@/constants/styles";
 import { useTranslate } from "@/hooks/useTranslate";
 import { generateReceiptPDF } from "@/services/pdfService";
@@ -7,7 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useColorScheme } from "nativewind";
-import { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -17,6 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ImageView from "react-native-image-viewing";
 
 export default function ReceiptDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -26,6 +28,8 @@ export default function ReceiptDetail() {
   const navigation = useNavigation();
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const [isExporting, setIsExporting] = useState(false);
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -56,21 +60,14 @@ export default function ReceiptDetail() {
 
     try {
       // Haptic feedback
+      setIsExporting(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-      // Show loading
-      Alert.alert(
-        translate("Exporting"),
-        translate("GeneratingPDF") || "Generating PDF...",
-        [{ text: "OK" }]
-      );
 
       // Generate PDF
       await generateReceiptPDF(receipt);
+      setIsExporting(false);
 
-      // Success feedback
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         translate("Success"),
         translate("PDFExported") || "Receipt exported as PDF!",
@@ -78,12 +75,12 @@ export default function ReceiptDetail() {
       );
     } catch (error) {
       console.error("PDF Export Error:", error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert(
-        "Error",
-        translate("PDFExportFailed") || "Failed to export PDF",
-        [{ text: "OK" }]
-      );
+
+      // Hide loading modal
+      setIsExporting(false);
+
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert("Error", translate("PDFExportFailed"), [{ text: "OK" }]);
     }
   };
 
@@ -137,6 +134,13 @@ export default function ReceiptDetail() {
 
   return (
     <View className={`flex-1 ${commonStyles.bgScreen}`}>
+      <ImageView
+        images={[{ uri: receipt.imageUrl }]}
+        imageIndex={2}
+        visible={imageViewerVisible}
+        onRequestClose={() => setImageViewerVisible(false)}
+        swipeToCloseEnabled={true}
+      />
       {/* Header */}
       <View className="px-6 pt-16 pb-4 flex-row items-center justify-between">
         <TouchableOpacity onPress={() => router.back()}>
@@ -164,11 +168,16 @@ export default function ReceiptDetail() {
       <ScrollView className="flex-1 px-6">
         {/* Receipt Image */}
         {receipt.imageUrl && (
-          <Image
-            source={{ uri: receipt.imageUrl }}
-            className="w-full h-96 rounded-xl mb-6"
-            resizeMode="contain"
-          />
+          <TouchableOpacity
+            onPress={() => setImageViewerVisible(true)}
+            activeOpacity={0.9}
+          >
+            <Image
+              source={{ uri: receipt.imageUrl }}
+              className="w-full h-96 rounded-xl mb-6"
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         )}
 
         {/* Store Info Card */}
@@ -247,7 +256,10 @@ export default function ReceiptDetail() {
             ))}
           </View>
         )}
-
+        <LoadingModal
+          visible={isExporting}
+          message={translate("GeneratingPDF")}
+        />
         {/* Total Summary */}
         <View
           className={`${commonStyles.bg} rounded-xl p-4 mb-6 border ${commonStyles.border}`}

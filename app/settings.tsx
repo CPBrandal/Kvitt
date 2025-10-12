@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslate } from "@/hooks/useTranslate";
+import { deleteLocalFiles } from "@/services/deleteFiles";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import * as Haptics from "expo-haptics";
@@ -222,7 +223,8 @@ export default function SettingsScreen() {
                 { text: translate("Cancel") || "Cancel", style: "cancel" },
                 {
                   text: translate("Clear") || "Clear",
-                  onPress: () => {
+                  onPress: async () => {
+                    await deleteLocalFiles();
                     Haptics.notificationAsync(
                       Haptics.NotificationFeedbackType.Success
                     );

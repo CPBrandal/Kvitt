@@ -263,14 +263,6 @@ export default function HomeScreen() {
             {translate("UploadFromGallery")}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          className={`${commonStyles.bg} border-2 ${commonStyles.border} rounded-2xl p-5 flex-row items-center justify-center`}
-          onPress={() => {
-            router.push("/signup");
-          }}
-        >
-          <Text>Signup</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
