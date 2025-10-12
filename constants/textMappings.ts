@@ -10,6 +10,7 @@ const translations = {
     nb: "Har du ikke en konto enda? Registrer deg",
   },
   Loading: { en: "Loading...", nb: "Laster..." },
+  LoadingReceipts: { en: "Loading receipts...", nb: "Laster kvitteringer..." },
   CameraPermissionAlert: {
     en: "Sorry, we need camera permissions to make this work!",
     nb: "Beklager, vi trenger tilgang til kameraet for at denned funksjonaliteten skal fungere",
@@ -57,6 +58,41 @@ const translations = {
     en: "This might take a few seconds",
     nb: "Dette kan ta noen sekunder",
   },
+  Receipt: { en: "Receipt", nb: "Kvittering" },
+  DeleteReceipt: { en: "Delete Receipt", nb: "Slett kvittering" },
+  DeleteReceiptConfirm: {
+    en: "Are you sure you want to delete the receipt from",
+    nb: "Er du sikker på at du vil slette kvitteringen fra",
+  },
+  Cancel: { en: "Cancel", nb: "Avbryt" },
+  Delete: { en: "Delete", nb: "Slett" },
+  SuccessDeleteReceipt: {
+    en: "Receipt deleted successfully",
+    nb: "Kvittering slettet",
+  },
+  FailureDeleteReceipt: {
+    en: "Failed to delete receipt",
+    nb: "Kunne ikke slette kvittering",
+  },
+  UnknownStore: { en: "Unknown Store", nb: "Ukjent butikk" },
+  Item: { en: "Item", nb: "Vare" },
+  Items: { en: "Items", nb: "Varer" },
+  VAT: { en: "VAT", nb: "MVA" },
+  NoReceipts: { en: "No receipts found", nb: "Ingen kvitteringer funnet" },
+  ScanYourFirstReceipt: {
+    en: "Scan your first receipt from the home screen",
+    nb: "Skann din første kvittering fra hjem-skjermen",
+  },
+  ReceiptNotFound: {
+    en: "Receipt not found",
+    nb: "Kunne ikke finne kvittering",
+  },
+  ReceiptsDetails: { en: "Receipt Details", nb: "Kvitteringsdetaljer" },
+  Store: { en: "Store", nb: "Butikk" },
+  Date: { en: "Date", nb: "Dato" },
+  Qty: { en: "Qty", nb: "Ant" },
+  ExportToPDF: { en: "Export to PDF", nb: "Eksporter som PDF" },
+  LogoutConfirm: { en: "Logged out", nb: "Logget ut" },
 };
 
 export type Language = "en" | "nb";

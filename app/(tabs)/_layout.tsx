@@ -1,11 +1,12 @@
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { translate } from "@/constants/textMappings";
+import { useTranslate } from "@/hooks/useTranslate";
 import { Tabs } from "expo-router";
 import { useColorScheme } from "nativewind";
 import React from "react";
 
 export default function TabLayout() {
+  const translate = useTranslate();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
 
@@ -16,7 +17,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: isDark ? "#111827" : "#ffffff", // gray-900 : white
+          backgroundColor: isDark ? "#111827" : "#ffffff",
         },
       }}
     >

@@ -4,9 +4,11 @@ import { getReceiptById } from "@/services/receiptService";
 import { Receipt } from "@/types/receipts";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useColorScheme } from "nativewind";
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -20,6 +22,8 @@ export default function ReceiptDetail() {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -45,6 +49,14 @@ export default function ReceiptDetail() {
     }
   };
 
+  const exportReceiptAsPDF = () => {
+    // Placeholder for PDF export functionality
+    Alert.alert(
+      "Export",
+      "Export to PDF functionality is not implemented yet."
+    );
+  };
+
   const formatCurrency = (amount: number, currency: string = "NOK") => {
     return `${amount.toFixed(2)} ${currency}`;
   };
@@ -65,7 +77,9 @@ export default function ReceiptDetail() {
         className={`flex-1 justify-center items-center ${commonStyles.bgScreen}`}
       >
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className={`${commonStyles.text} mt-4`}>Loading receipt...</Text>
+        <Text className={`${commonStyles.text} mt-4`}>
+          {translate("LoadingReceipts")}
+        </Text>
       </View>
     );
   }
@@ -77,13 +91,15 @@ export default function ReceiptDetail() {
       >
         <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
         <Text className={`${commonStyles.text} text-xl font-semibold mt-4`}>
-          Receipt not found
+          {translate("ReceiptNotFound")}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
           className="mt-6 bg-blue-600 px-6 py-3 rounded-lg"
         >
-          <Text className="text-white font-semibold">Go Back</Text>
+          <Text className="text-white font-semibold">
+            {translate("GoBack")}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -97,12 +113,26 @@ export default function ReceiptDetail() {
           <Ionicons
             name="arrow-back"
             size={24}
-            color={commonStyles.imgColorLight}
+            color={
+              isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+            }
           />
         </TouchableOpacity>
-        <Text className={`text-2xl font-bold ${commonStyles.text} flex-1`}>
-          Receipt Details
+        <Text
+          className={`text-2xl font-bold ${commonStyles.text} flex-1 text-center`}
+        >
+          {translate("ReceiptsDetails")}
         </Text>
+        <TouchableOpacity
+          onPress={() => {
+            exportReceiptAsPDF();
+          }}
+          className="ml-4"
+        >
+          <Text className={`${commonStyles.text} font-semibold`}>
+            {translate("ExportToPDF")}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView className="flex-1 px-6">
@@ -120,10 +150,10 @@ export default function ReceiptDetail() {
           className={`${commonStyles.bg} rounded-xl p-4 mb-4 border ${commonStyles.border}`}
         >
           <Text className="text-gray-500 dark:text-gray-400 text-sm mb-2">
-            Store
+            {translate("Store")}
           </Text>
           <Text className={`${commonStyles.text} text-2xl font-bold`}>
-            {receipt.sellerName || "Unknown Store"}
+            {receipt.sellerName || translate("UnknownStore")}
           </Text>
           {receipt.sellerAddress && (
             <Text className="text-gray-500 dark:text-gray-400 text-sm mt-2">
@@ -142,7 +172,9 @@ export default function ReceiptDetail() {
           className={`${commonStyles.bg} rounded-xl p-4 mb-4 border ${commonStyles.border}`}
         >
           <View className="flex-row justify-between mb-3">
-            <Text className="text-gray-500 dark:text-gray-400">Date</Text>
+            <Text className="text-gray-500 dark:text-gray-400">
+              {translate("Date")}
+            </Text>
             <Text className={`${commonStyles.text} font-semibold`}>
               {formatDate(receipt.receiptDate)}
             </Text>
@@ -150,7 +182,7 @@ export default function ReceiptDetail() {
           {receipt.receiptNumber && (
             <View className="flex-row justify-between">
               <Text className="text-gray-500 dark:text-gray-400">
-                Receipt #
+                {translate("Receipt")} #
               </Text>
               <Text className={`${commonStyles.text} font-semibold`}>
                 {receipt.receiptNumber}
@@ -165,7 +197,7 @@ export default function ReceiptDetail() {
             className={`${commonStyles.bg} rounded-xl p-4 mb-4 border ${commonStyles.border}`}
           >
             <Text className={`${commonStyles.text} text-lg font-bold mb-4`}>
-              Items ({receipt.items.length})
+              {translate("Items")} ({receipt.items.length})
             </Text>
             {receipt.items.map((item, index) => (
               <View
@@ -178,7 +210,7 @@ export default function ReceiptDetail() {
                   </Text>
                   {item.quantity && (
                     <Text className="text-gray-500 dark:text-gray-400 text-xs mt-1">
-                      Qty: {item.quantity}
+                      {translate("Qty")}: {item.quantity}
                     </Text>
                   )}
                 </View>
@@ -204,7 +236,9 @@ export default function ReceiptDetail() {
           )}
           {receipt.vatAmount && (
             <View className="flex-row justify-between mb-2">
-              <Text className="text-gray-500 dark:text-gray-400">VAT</Text>
+              <Text className="text-gray-500 dark:text-gray-400">
+                {translate("VAT")}
+              </Text>
               <Text className={`${commonStyles.text}`}>
                 {formatCurrency(receipt.vatAmount, receipt.currency)}
               </Text>
