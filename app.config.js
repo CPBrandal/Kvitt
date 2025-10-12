@@ -29,7 +29,6 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundImage: "./assets/images/android-icon-background.png",
       },
-      adaptiveIcon: {},
       permissions: [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",

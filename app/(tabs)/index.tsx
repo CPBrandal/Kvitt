@@ -26,8 +26,12 @@ export default function HomeScreen() {
   const isDark = colorScheme === "dark";
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
+    if (!loading) {
+      if (!user) {
+        router.replace("/login");
+      } else if (!user.emailVerified) {
+        router.replace("/verify-email");
+      }
     }
   }, [user, loading]);
 
