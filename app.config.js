@@ -1,8 +1,8 @@
 export default {
   expo: {
     name: "Kvitt",
-    slug: "kvitt",
-    owner: "cpbrandal", // ADD THIS LINE
+    slug: "kvitt", // CHANGED: lowercase to match EAS project
+    owner: "cpbrandal",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
@@ -11,13 +11,14 @@ export default {
     newArchEnabled: true,
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.cpbrandal.kvitt", // ADD THIS
-      googleServicesFile: "./GoogleService-Info.plist", // ADD THIS
+      bundleIdentifier: "com.cpbrandal.kvitt",
+      googleServicesFile: "./GoogleService-Info.plist",
       infoPlist: {
         NSCameraUsageDescription:
           "This app needs camera access to scan receipts.",
         NSPhotoLibraryUsageDescription:
           "This app needs access to your photos to scan receipts.",
+        ITSAppUsesNonExemptEncryption: false, // ADD THIS LINE
       },
     },
     android: {
