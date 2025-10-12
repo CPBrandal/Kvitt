@@ -20,7 +20,6 @@ import {
 } from "react-native";
 
 export default function HomeScreen() {
-  const GOOGLE_CLOUD_API_KEY = Constants.expoConfig?.extra?.googleCloudApiKey;
   const { user, loading } = useAuth();
   const translate = useTranslate();
   const [isLoading, setIsLoading] = useState(false);

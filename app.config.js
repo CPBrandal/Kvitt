@@ -56,8 +56,6 @@ export default {
       typedRoutes: true,
       reactCompiler: true,
     },
-    extra: {
-      googleCloudApiKey: process.env.GOOGLE_CLOUD_API_KEY,
-    },
+    extra: {},
   },
 };
