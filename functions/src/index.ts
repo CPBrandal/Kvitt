@@ -4,31 +4,10 @@ import { defineSecret } from "firebase-functions/params";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import OpenAI from "openai";
+import { ParsedReceiptData } from "../../services/receiptParserService";
 
 // Define the secret
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
-
-// Interface for parsed receipt
-interface ParsedReceipt {
-  sellerName?: string;
-  sellerOrgNumber?: string;
-  sellerAddress?: string;
-  totalAmount?: number;
-  subtotal?: number;
-  vatAmount?: number;
-  currency?: string;
-  receiptDate?: string;
-  receiptNumber?: string;
-  items: Array<{
-    name: string;
-    quantity?: number;
-    unitPrice?: number;
-    totalPrice?: number;
-  }>;
-  paymentMethod?: string;
-  rawText: string;
-  confidence: number;
-}
 
 // Global function settings
 setGlobalOptions({ region: "europe-west3", maxInstances: 10 });
@@ -134,8 +113,8 @@ Important:
       }
 
       try {
-        const parsed = JSON.parse(jsonContent) as ParsedReceipt;
-        const result: ParsedReceipt = {
+        const parsed = JSON.parse(jsonContent) as ParsedReceiptData;
+        const result: ParsedReceiptData = {
           ...parsed,
           rawText: content,
           confidence: 0.9,

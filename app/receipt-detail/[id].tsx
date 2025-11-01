@@ -26,7 +26,7 @@ export default function ReceiptDetail() {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const [isExporting, setIsExporting] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
@@ -59,11 +59,9 @@ export default function ReceiptDetail() {
     if (!receipt) return;
 
     try {
-      // Haptic feedback
       setIsExporting(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-      // Generate PDF
       await generateReceiptPDF(receipt);
       setIsExporting(false);
 
@@ -75,8 +73,6 @@ export default function ReceiptDetail() {
       );
     } catch (error) {
       console.error("PDF Export Error:", error);
-
-      // Hide loading modal
       setIsExporting(false);
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

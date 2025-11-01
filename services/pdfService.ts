@@ -20,29 +20,6 @@ export const generateReceiptPDF = async (receipt: Receipt): Promise<string> => {
       minute: "2-digit",
     });
 
-    // --- Convert image to base64 if available ---
-    let imageBase64 = "";
-    if (receipt.imageUrl) {
-      try {
-        // Use a unique temporary filename to avoid conflicts
-        const tempFileName = `receipt_temp_${Date.now()}.jpg`;
-        const tempFile = new File(Paths.cache, tempFileName);
-
-        // Delete if exists (shouldn't happen with timestamp, but just in case)
-        if (await tempFile.exists) {
-          await tempFile.delete();
-        }
-
-        await File.downloadFileAsync(receipt.imageUrl, tempFile);
-        imageBase64 = await tempFile.base64();
-
-        // Clean up temp file after reading
-        await tempFile.delete();
-      } catch (error) {
-        console.warn("Could not load receipt image:", error);
-      }
-    }
-
     // --- HTML template for the receipt ---
     const html = `
 <!DOCTYPE html>
@@ -175,16 +152,6 @@ export const generateReceiptPDF = async (receipt: Receipt): Promise<string> => {
       )}</div>
     </div>
   </div>
-
-  ${
-    imageBase64
-      ? `
-  <div class="original-image">
-    <h3>Original Kvittering</h3>
-    <img src="data:image/jpeg;base64,${imageBase64}" alt="Original Receipt" />
-  </div>`
-      : ""
-  }
 </body>
 </html>
 `;
@@ -205,18 +172,18 @@ export const generateReceiptPDF = async (receipt: Receipt): Promise<string> => {
 
     // Create the destination directory if it doesn't exist
     const pdfDirectory = new Directory(Paths.document, "receipts");
-    if (!(await pdfDirectory.exists)) {
-      await pdfDirectory.create({ intermediates: true });
+    if (!pdfDirectory.exists) {
+      pdfDirectory.create({ intermediates: true });
     }
 
     // Create destination file and delete if it already exists
     const destinationFile = new File(pdfDirectory, fileName);
-    if (await destinationFile.exists) {
-      await destinationFile.delete();
+    if (destinationFile.exists) {
+      destinationFile.delete();
     }
 
     // Move the file to the permanent location
-    await tempPdf.move(destinationFile);
+    tempPdf.move(destinationFile);
 
     // --- Share the PDF or alert path ---
     if (await Sharing.isAvailableAsync()) {
