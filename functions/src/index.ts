@@ -37,10 +37,9 @@ export const parseReceipt = onCall(
   {
     timeoutSeconds: 60,
     memory: "256MiB",
-    secrets: [openaiApiKey], // Add this line!
+    secrets: [openaiApiKey],
   },
   async (request) => {
-    // Initialize OpenAI inside the function
     const openai = new OpenAI({
       apiKey: openaiApiKey.value(),
     });
@@ -65,7 +64,7 @@ export const parseReceipt = onCall(
       logger.log(`Parsing receipt for user: ${request.auth.uid}`);
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -127,7 +126,6 @@ Important:
         throw new Error("No response content from GPT-4");
       }
 
-      // Remove markdown if included
       let jsonContent = content.trim();
       if (jsonContent.startsWith("```")) {
         jsonContent = jsonContent
@@ -135,9 +133,16 @@ Important:
           .replace(/```\n?/g, "");
       }
 
-      let parsed: ParsedReceipt;
       try {
-        parsed = JSON.parse(jsonContent);
+        const parsed = JSON.parse(jsonContent) as ParsedReceipt;
+        const result: ParsedReceipt = {
+          ...parsed,
+          rawText: content,
+          confidence: 0.9,
+        };
+
+        logger.log("Successfully parsed receipt:", result);
+        return result;
       } catch (_parseError) {
         logger.error("Failed to parse JSON from GPT response:", jsonContent);
         throw new HttpsError(
@@ -145,15 +150,6 @@ Important:
           "Received invalid JSON format from GPT."
         );
       }
-
-      const result: ParsedReceipt = {
-        ...parsed,
-        rawText: content,
-        confidence: 0.9,
-      };
-
-      logger.log("Successfully parsed receipt:", result);
-      return result;
     } catch (error: any) {
       logger.error("Error parsing receipt:", error);
 

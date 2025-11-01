@@ -1,6 +1,7 @@
 // services/receiptParserService.ts
 import { functions } from "@/config/firebase";
 import { httpsCallable } from "firebase/functions";
+import * as ImageManipulator from "expo-image-manipulator";
 
 export interface ParsedReceiptData {
   sellerName?: string;
@@ -32,7 +33,6 @@ export const parseReceiptImage = async (
 
     console.log("🚀 Calling GPT-4 Vision API...");
 
-    // ✅ Fixed: Remove the second generic type
     const parseReceipt = httpsCallable<{ imageBase64: string }>(
       functions,
       "parseReceipt"
@@ -42,7 +42,6 @@ export const parseReceiptImage = async (
 
     console.log("✅ Receipt parsed successfully!");
 
-    // Cast the result.data to our type
     const data = result.data as ParsedReceiptData;
 
     console.log("Seller:", data.sellerName);
@@ -72,14 +71,29 @@ export const parseReceiptImage = async (
 /**
  * Convert image URI to base64 string
  * Works with both local URIs and remote URLs
+ * Automatically converts HEIC to JPEG for API compatibility
  */
 const convertImageToBase64 = async (imageUri: string): Promise<string> => {
   try {
-    // Fetch the image
-    const response = await fetch(imageUri);
+    console.log("🔄 Converting image format to JPEG...");
+
+    // @ts-ignore - Using deprecated API until expo-image-manipulator is updated
+    const manipResult = await ImageManipulator.manipulateAsync(
+      imageUri,
+      [{ resize: { width: 2000 } }],
+      {
+        compress: 0.8,
+        format: ImageManipulator.SaveFormat.JPEG,
+      }
+    );
+
+    console.log("✅ Image converted to JPEG");
+
+    // Fetch the converted image
+    const response = await fetch(manipResult.uri);
 
     if (!response.ok) {
-      throw new Error("Failed to fetch image");
+      throw new Error("Failed to fetch converted image");
     }
 
     // Convert to blob
@@ -91,7 +105,6 @@ const convertImageToBase64 = async (imageUri: string): Promise<string> => {
 
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
         const base64Data = base64String.split(",")[1];
 
         if (!base64Data) {
@@ -116,7 +129,6 @@ const convertImageToBase64 = async (imageUri: string): Promise<string> => {
 
 /**
  * Validate parsed receipt data
- * Use this to check if the parsing was successful
  */
 export const validateParsedReceipt = (
   data: ParsedReceiptData
@@ -154,17 +166,12 @@ export const validateParsedReceipt = (
 export const formatParsedReceipt = (data: ParsedReceiptData) => {
   return {
     ...data,
-    // Format currency
     totalFormatted: data.totalAmount
       ? `${data.totalAmount.toFixed(2)} ${data.currency || "NOK"}`
       : "N/A",
-
-    // Format date
     dateFormatted: data.receiptDate
       ? new Date(data.receiptDate).toLocaleDateString("nb-NO")
       : "N/A",
-
-    // Calculate subtotal if missing
     subtotal:
       data.subtotal ||
       (data.totalAmount && data.vatAmount
