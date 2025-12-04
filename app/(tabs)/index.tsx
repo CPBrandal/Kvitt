@@ -1,6 +1,6 @@
+import { CUSTOM_PALETTE } from "@/constants/colors";
 import { commonStyles } from "@/constants/styles";
 import { useAuth } from "@/context/AuthContext";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslate } from "@/hooks/useTranslate";
 import { logout } from "@/services/auth";
 import {
@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -34,7 +35,7 @@ export default function HomeScreen() {
     thisMonthAmount: 0,
   });
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
 
   useEffect(() => {
@@ -262,7 +263,12 @@ export default function HomeScreen() {
               elevation: 20,
             }}
           >
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator
+              size="large"
+              color={
+                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+              }
+            />
             <Text className={`${commonStyles.text} mt-6 text-xl font-bold`}>
               {translate("ProcessingReceipt")}
             </Text>
@@ -280,13 +286,11 @@ export default function HomeScreen() {
       >
         {/* Header with Gradient Background */}
         <View
-          className={`pt-20 pb-8 px-6 ${
-            isDark
-              ? "bg-gray-900"
-              : "bg-gradient-to-b from-blue-50 to-transparent"
-          }`}
+          className="pt-20 pb-8 px-6"
           style={{
-            backgroundColor: isDark ? "#111827" : "#EFF6FF",
+            backgroundColor: isDark
+              ? CUSTOM_PALETTE.rgb.swamp
+              : CUSTOM_PALETTE.rgb.porcelain,
           }}
         >
           <View className="flex-row items-start justify-between mb-6">
@@ -336,6 +340,11 @@ export default function HomeScreen() {
               className={`p-3 rounded-full ${
                 isDark ? "bg-gray-800/50" : "bg-white/80"
               }`}
+              style={{
+                backgroundColor: isDark
+                  ? "rgba(1, 27, 40, 0.5)"
+                  : "rgba(255, 255, 255, 0.8)",
+              }}
               activeOpacity={0.7}
             >
               <Ionicons
@@ -343,8 +352,8 @@ export default function HomeScreen() {
                 size={22}
                 color={
                   isDark
-                    ? commonStyles.imgColorDark
-                    : commonStyles.imgColorLight
+                    ? CUSTOM_PALETTE.rgb.smaltBlue
+                    : CUSTOM_PALETTE.rgb.deepSeaGreen
                 }
               />
             </TouchableOpacity>
@@ -362,7 +371,14 @@ export default function HomeScreen() {
                 elevation: 5,
               }}
             >
-              <Text className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">
+              <Text
+                className="text-sm font-medium mb-2"
+                style={{
+                  color: isDark
+                    ? "rgba(241, 244, 245, 0.7)"
+                    : CUSTOM_PALETTE.rgb.tarawera,
+                }}
+              >
                 {translate("TotalSpent") || "Total Spent"}
               </Text>
               <Text className={`${commonStyles.text} text-5xl font-black mb-1`}>
@@ -370,15 +386,45 @@ export default function HomeScreen() {
               </Text>
               <View className="flex-row items-center gap-4 mt-4">
                 <View className="flex-row items-center">
-                  <Ionicons name="receipt-outline" size={16} color="#6b7280" />
-                  <Text className="text-gray-600 dark:text-gray-400 text-sm ml-1.5">
+                  <Ionicons
+                    name="receipt-outline"
+                    size={16}
+                    color={
+                      isDark
+                        ? CUSTOM_PALETTE.rgb.smaltBlue
+                        : CUSTOM_PALETTE.rgb.deepSeaGreen
+                    }
+                  />
+                  <Text
+                    className="text-sm ml-1.5"
+                    style={{
+                      color: isDark
+                        ? "rgba(241, 244, 245, 0.7)"
+                        : CUSTOM_PALETTE.rgb.tarawera,
+                    }}
+                  >
                     {stats.totalReceipts}{" "}
                     {translate("TotalReceipts") || "receipts"}
                   </Text>
                 </View>
                 <View className="flex-row items-center">
-                  <Ionicons name="calendar-outline" size={16} color="#6b7280" />
-                  <Text className="text-gray-600 dark:text-gray-400 text-sm ml-1.5">
+                  <Ionicons
+                    name="calendar-outline"
+                    size={16}
+                    color={
+                      isDark
+                        ? CUSTOM_PALETTE.rgb.smaltBlue
+                        : CUSTOM_PALETTE.rgb.deepSeaGreen
+                    }
+                  />
+                  <Text
+                    className="text-sm ml-1.5"
+                    style={{
+                      color: isDark
+                        ? "rgba(241, 244, 245, 0.7)"
+                        : CUSTOM_PALETTE.rgb.tarawera,
+                    }}
+                  >
                     {formatCurrency(stats.thisMonthAmount)}{" "}
                     {translate("ThisMonth") || "this month"}
                   </Text>
@@ -389,7 +435,14 @@ export default function HomeScreen() {
 
           {loadingStats && (
             <View className="py-8">
-              <ActivityIndicator size="small" color="#3b82f6" />
+              <ActivityIndicator
+                size="small"
+                color={
+                  isDark
+                    ? commonStyles.imgColorDark
+                    : commonStyles.imgColorLight
+                }
+              />
             </View>
           )}
         </View>
@@ -402,10 +455,15 @@ export default function HomeScreen() {
           <View className="flex-row gap-4">
             <TouchableOpacity
               onPress={handleTakePhoto}
-              className="flex-1 bg-blue-600 dark:bg-blue-500 rounded-2xl p-6 items-center justify-center"
+              className="flex-1 rounded-2xl p-6 items-center justify-center"
               activeOpacity={0.85}
               style={{
-                shadowColor: "#3b82f6",
+                backgroundColor: isDark
+                  ? commonStyles.secondary
+                  : commonStyles.primary,
+                shadowColor: isDark
+                  ? commonStyles.secondary
+                  : commonStyles.primary,
                 shadowOffset: { width: 0, height: 6 },
                 shadowOpacity: 0.4,
                 shadowRadius: 10,
@@ -433,17 +491,20 @@ export default function HomeScreen() {
               }}
             >
               <View
-                className={`rounded-full p-4 mb-3 ${
-                  isDark ? "bg-gray-800" : "bg-gray-100"
-                }`}
+                className="rounded-full p-4 mb-3"
+                style={{
+                  backgroundColor: isDark
+                    ? CUSTOM_PALETTE.rgb.daintreeLight
+                    : CUSTOM_PALETTE.rgb.porcelain,
+                }}
               >
                 <Ionicons
                   name="images-outline"
                   size={28}
                   color={
                     isDark
-                      ? commonStyles.imgColorDark
-                      : commonStyles.imgColorLight
+                      ? CUSTOM_PALETTE.rgb.smaltBlue
+                      : CUSTOM_PALETTE.rgb.deepSeaGreen
                   }
                 />
               </View>
@@ -466,13 +527,24 @@ export default function HomeScreen() {
                 className="flex-row items-center"
                 activeOpacity={0.7}
               >
-                <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold mr-1">
+                <Text
+                  className="text-sm font-semibold mr-1"
+                  style={{
+                    color: isDark
+                      ? commonStyles.imgColorDark
+                      : commonStyles.imgColorLight,
+                  }}
+                >
                   View all
                 </Text>
                 <Ionicons
                   name="chevron-forward"
                   size={18}
-                  color={isDark ? "#60a5fa" : "#2563eb"}
+                  color={
+                    isDark
+                      ? commonStyles.imgColorDark
+                      : commonStyles.imgColorLight
+                  }
                 />
               </TouchableOpacity>
             </View>
@@ -492,14 +564,21 @@ export default function HomeScreen() {
                 }}
               >
                 <View
-                  className={`${
-                    isDark ? "bg-gray-800" : "bg-blue-50"
-                  } rounded-xl p-3 mr-4`}
+                  className="rounded-xl p-3 mr-4"
+                  style={{
+                    backgroundColor: isDark
+                      ? CUSTOM_PALETTE.rgb.daintreeLight
+                      : CUSTOM_PALETTE.rgb.porcelain,
+                  }}
                 >
                   <Ionicons
                     name="receipt"
                     size={24}
-                    color={isDark ? "#60a5fa" : "#3b82f6"}
+                    color={
+                      isDark
+                        ? commonStyles.imgColorDark
+                        : commonStyles.imgColorLight
+                    }
                   />
                 </View>
                 <View className="flex-1">
@@ -549,14 +628,21 @@ export default function HomeScreen() {
               }}
             >
               <View
-                className={`${
-                  isDark ? "bg-gray-800" : "bg-blue-50"
-                } rounded-full p-6 mb-6`}
+                className="rounded-full p-6 mb-6"
+                style={{
+                  backgroundColor: isDark
+                    ? CUSTOM_PALETTE.rgb.daintreeLight
+                    : CUSTOM_PALETTE.rgb.porcelain,
+                }}
               >
                 <Ionicons
                   name="receipt-outline"
                   size={56}
-                  color={isDark ? "#60a5fa" : "#3b82f6"}
+                  color={
+                    isDark
+                      ? commonStyles.imgColorDark
+                      : commonStyles.imgColorLight
+                  }
                 />
               </View>
               <Text

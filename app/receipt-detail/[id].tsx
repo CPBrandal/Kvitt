@@ -1,5 +1,5 @@
 import { LoadingModal } from "@/components/loadingModal";
-import { commonStyles } from "@/constants/styles";
+import { bgColors, commonStyles } from "@/constants/styles";
 import { useTranslate } from "@/hooks/useTranslate";
 import { generateReceiptPDF } from "@/services/pdfService";
 import { getReceiptById } from "@/services/receiptService";
@@ -26,7 +26,7 @@ export default function ReceiptDetail() {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const { colorScheme, toggleColorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const [isExporting, setIsExporting] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
@@ -101,9 +101,17 @@ export default function ReceiptDetail() {
   if (loading) {
     return (
       <View
-        className={`flex-1 justify-center items-center ${commonStyles.bgScreen}`}
+        className="flex-1 justify-center items-center"
+        style={{
+          backgroundColor: isDark ? bgColors.swamp : bgColors.porcelain,
+        }}
       >
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator
+          size="large"
+          color={
+            isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+          }
+        />
         <Text className={`${commonStyles.text} mt-4`}>
           {translate("LoadingReceipts")}
         </Text>
@@ -114,7 +122,10 @@ export default function ReceiptDetail() {
   if (!receipt) {
     return (
       <View
-        className={`flex-1 justify-center items-center ${commonStyles.bgScreen}`}
+        className="flex-1 justify-center items-center"
+        style={{
+          backgroundColor: isDark ? bgColors.swamp : bgColors.porcelain,
+        }}
       >
         <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
         <Text className={`${commonStyles.text} text-xl font-semibold mt-4`}>
@@ -122,7 +133,12 @@ export default function ReceiptDetail() {
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="mt-6 bg-blue-600 px-6 py-3 rounded-lg"
+          className="mt-6 px-6 py-3 rounded-lg"
+          style={{
+            backgroundColor: isDark
+              ? commonStyles.secondary
+              : commonStyles.primary,
+          }}
         >
           <Text className="text-white font-semibold">
             {translate("GoBack")}
@@ -133,7 +149,12 @@ export default function ReceiptDetail() {
   }
 
   return (
-    <View className={`flex-1 ${commonStyles.bgScreen}`}>
+    <View
+      className="flex-1"
+      style={{
+        backgroundColor: isDark ? bgColors.swamp : bgColors.cream,
+      }}
+    >
       <ImageView
         images={[{ uri: receipt.imageUrl }]}
         imageIndex={2}
@@ -159,7 +180,14 @@ export default function ReceiptDetail() {
           }}
           className="ml-4"
         >
-          <Text className={`text-blue-600 font-semibold text-right`}>
+          <Text
+            className="font-semibold text-right"
+            style={{
+              color: isDark
+                ? commonStyles.imgColorDark
+                : commonStyles.imgColorLight,
+            }}
+          >
             {translate("ExportToPDF")}
           </Text>
         </TouchableOpacity>

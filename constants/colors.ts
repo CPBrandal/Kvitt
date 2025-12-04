@@ -126,3 +126,40 @@ export const PLATFORM_COLORS =
     : Platform.OS === "android"
     ? ANDROID_COLORS
     : WEB_COLORS;
+
+// Custom Color Palette - Teal/Blue Theme
+export const CUSTOM_PALETTE = {
+  // Hex values for reference
+  hex: {
+    smaltBlue: "#567e89",
+    swamp: "#001119",
+    tarawera: "#083f4d",
+    porcelain: "#f1f4f5",
+    deepSeaGreen: "#0b4953",
+    daintree: "#011b28",
+    daintreeLight: "#022c38",
+    cream: "#f5f3f0", // Soft cream/beige background
+  },
+  // RGB values for React Native
+  rgb: {
+    smaltBlue: "rgb(86, 126, 137)",
+    swamp: "rgb(0, 17, 25)",
+    tarawera: "rgb(8, 63, 77)",
+    porcelain: "rgb(241, 244, 245)",
+    deepSeaGreen: "rgb(11, 73, 83)",
+    daintree: "rgb(1, 27, 40)",
+    daintreeLight: "rgb(2, 44, 56)",
+    cream: "rgb(245, 243, 240)",
+  },
+  // RGBA values for transparency support
+  rgba: {
+    smaltBlue: "rgba(86, 126, 137, 1)",
+    swamp: "rgba(0, 17, 25, 1)",
+    tarawera: "rgba(8, 63, 77, 1)",
+    porcelain: "rgba(241, 244, 245, 1)",
+    deepSeaGreen: "rgba(11, 73, 83, 1)",
+    daintree: "rgba(1, 27, 40, 1)",
+    daintreeLight: "rgba(2, 44, 56, 1)",
+    cream: "rgba(245, 243, 240, 1)",
+  },
+} as const;

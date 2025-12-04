@@ -178,7 +178,7 @@ const translations = {
     nb: "Vi har sendt deg en verifiserings-e-post. Vennligst verifiser e-posten din før du logger inn. Husk også å sjekke spam-mappen din!",
   },
   CreateAccount: { en: "Create Account", nb: "Opprett konto" },
-  FullName: { en: "Full Name", nb: "Fullt navn" },
+  FullName: { en: "Full Name", nb: "Fult navn" },
   Signup: { en: "Sign Up", nb: "Registrer deg" },
   CreatingAccount: { en: "Creating account...", nb: "Oppretter konto..." },
   AlreadyHaveAccount: {
