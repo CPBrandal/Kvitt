@@ -1,4 +1,4 @@
-import { commonStyles } from "@/constants/styles";
+import { bgColors, commonStyles, textColors } from "@/constants/styles";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -33,16 +33,16 @@ export default function SettingsScreen() {
       title: translate("Settings"),
       headerShown: true,
       headerStyle: {
-        backgroundColor: isDark ? "#1f2937" : "#ffffff",
+        backgroundColor: isDark ? bgColors.swamp : bgColors.porcelain,
       },
-      headerTintColor: isDark ? "#f9fafb" : "#1f2937",
+      headerTintColor: isDark ? textColors.accentDark : textColors.accent,
       headerLeft: () => (
         <View className="h-full items-center">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
             <Ionicons
               name="arrow-back"
               size={24}
-              color={isDark ? "#f9fafb" : "#1f2937"}
+              color={isDark ? textColors.accentDark : textColors.accent}
             />
           </TouchableOpacity>
         </View>
@@ -92,7 +92,13 @@ export default function SettingsScreen() {
       <Ionicons
         name={icon as any}
         size={24}
-        color={danger ? "#ef4444" : isDark ? "#3b82f6" : "#2563eb"}
+        color={
+          danger
+            ? "#ef4444"
+            : isDark
+            ? commonStyles.imgColorDark
+            : commonStyles.imgColorLight
+        }
         style={{ marginRight: 12 }}
       />
       <View className="flex-1">
@@ -111,14 +117,21 @@ export default function SettingsScreen() {
       </View>
       {rightComponent}
       {showChevron && (
-        <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={isDark ? "#6b7280" : "#9ca3af"}
+        />
       )}
     </TouchableOpacity>
   );
 
   return (
     <ScrollView
-      className={`flex-1 ${commonStyles.bgScreen}`}
+      className="flex-1"
+      style={{
+        backgroundColor: isDark ? bgColors.swamp : bgColors.porcelain,
+      }}
       showsVerticalScrollIndicator={false}
     >
       {/* User Info */}
@@ -127,9 +140,12 @@ export default function SettingsScreen() {
           className={`${commonStyles.bg} rounded-2xl p-6 border ${commonStyles.border} flex-row items-center`}
         >
           <View
-            className={`w-16 h-16 rounded-full ${
-              isDark ? "bg-blue-900" : "bg-blue-100"
-            } items-center justify-center`}
+            className="w-16 h-16 rounded-full items-center justify-center"
+            style={{
+              backgroundColor: isDark
+                ? bgColors.daintreeLight
+                : commonStyles.backgroundLight,
+            }}
           >
             <Text className="text-3xl">
               {user?.displayName?.charAt(0).toUpperCase() || "U"}
@@ -161,8 +177,11 @@ export default function SettingsScreen() {
             <Switch
               value={isDark}
               onValueChange={handleToggleDarkMode}
-              trackColor={{ false: "#d1d5db", true: "#3b82f6" }}
-              thumbColor={isDark ? "#1e40af" : "#f3f4f6"}
+              trackColor={{
+                false: "#d1d5db",
+                true: "#10b981",
+              }}
+              thumbColor="#ffffff"
             />
           }
         />
@@ -181,7 +200,13 @@ export default function SettingsScreen() {
             <Text className={`${commonStyles.text} text-base`}>Norsk</Text>
           </View>
           {language === "nb" && (
-            <Ionicons name="checkmark-circle" size={24} color="#3b82f6" />
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={
+                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+              }
+            />
           )}
         </TouchableOpacity>
 
@@ -195,7 +220,13 @@ export default function SettingsScreen() {
             <Text className={`${commonStyles.text} text-base`}>English</Text>
           </View>
           {language === "en" && (
-            <Ionicons name="checkmark-circle" size={24} color="#3b82f6" />
+            <Ionicons
+              name="checkmark-circle"
+              size={24}
+              color={
+                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
+              }
+            />
           )}
         </TouchableOpacity>
       </View>
@@ -256,8 +287,11 @@ export default function SettingsScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setNotificationsEnabled(value);
               }}
-              trackColor={{ false: "#d1d5db", true: "#3b82f6" }}
-              thumbColor={notificationsEnabled ? "#1e40af" : "#f3f4f6"}
+              trackColor={{
+                false: "#d1d5db",
+                true: "#10b981",
+              }}
+              thumbColor="#ffffff"
             />
           }
         />

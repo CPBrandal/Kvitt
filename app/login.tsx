@@ -1,7 +1,8 @@
-import { commonStyles } from "@/constants/styles";
+import { bgColors, commonStyles } from "@/constants/styles";
 import { useTranslate } from "@/hooks/useTranslate";
 import { signIn, signInWithGoogle, useGoogleAuth } from "@/services/auth"; // All from auth.ts now
 import { router } from "expo-router";
+import { useColorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -10,6 +11,8 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const translate = useTranslate();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const useGoogleLogin = false;
 
   // Google Sign-In
@@ -52,9 +55,18 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className={`${commonStyles.bgScreen} flex-1 justify-center`}>
-      <View className="bg-white dark:bg-gray-900 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-800 mb-8 justifyContent-center">
-        <Text className="font-bold mb-10 text-center text-2xl text-gray-900 dark:text-gray-50">
+    <View
+      className="flex-1 justify-center px-6"
+      style={{
+        backgroundColor: isDark ? bgColors.swamp : bgColors.porcelain,
+      }}
+    >
+      <View
+        className={`${commonStyles.bg} rounded-2xl p-8 border-2 ${commonStyles.border} mb-8`}
+      >
+        <Text
+          className={`font-bold mb-10 text-center text-2xl ${commonStyles.text}`}
+        >
           {translate("WelcomeBack")}
         </Text>
 
@@ -76,11 +88,17 @@ export default function LoginScreen() {
         />
 
         <TouchableOpacity
-          className="bg-blue-600 rounded-lg mt-4 p-4"
+          className="rounded-lg mt-4 p-4"
           onPress={handleLogin}
           disabled={loading}
+          style={{
+            backgroundColor: isDark
+              ? commonStyles.secondary
+              : commonStyles.primary,
+            opacity: loading ? 0.6 : 1,
+          }}
         >
-          <Text className={`text-white text-center font-bold text-lg`}>
+          <Text className="text-white text-center font-bold text-lg">
             {loading ? translate("LoggingIn") : translate("Login")}
           </Text>
         </TouchableOpacity>
@@ -88,19 +106,31 @@ export default function LoginScreen() {
         {useGoogleLogin && (
           <>
             <View className="flex-row items-center my-6">
-              <View className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
-              <Text className="mx-4 text-gray-500 dark:text-gray-400">
+              <View
+                className="flex-1 h-px"
+                style={{
+                  backgroundColor: isDark ? "#374151" : "#d1d5db",
+                }}
+              />
+              <Text className={`mx-4 ${commonStyles.textMuted}`}>
                 {translate("Or")}
               </Text>
-              <View className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+              <View
+                className="flex-1 h-px"
+                style={{
+                  backgroundColor: isDark ? "#374151" : "#d1d5db",
+                }}
+              />
             </View>
 
             <TouchableOpacity
-              className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-700 rounded-lg p-4 flex-row items-center justify-center"
+              className={`${commonStyles.bg} border-2 ${commonStyles.border} rounded-lg p-4 flex-row items-center justify-center`}
               onPress={() => promptAsync()}
               disabled={!request || loading}
             >
-              <Text className="text-gray-900 dark:text-gray-50 text-center font-semibold text-lg">
+              <Text
+                className={`${commonStyles.text} text-center font-semibold text-lg`}
+              >
                 {translate("ContinueWithGoogle")}
               </Text>
             </TouchableOpacity>
@@ -108,7 +138,14 @@ export default function LoginScreen() {
         )}
 
         <TouchableOpacity onPress={() => router.push("/signup")}>
-          <Text className="text-[#007AFF] text-center mt-4">
+          <Text
+            className="text-center mt-4"
+            style={{
+              color: isDark
+                ? commonStyles.imgColorDark
+                : commonStyles.imgColorLight,
+            }}
+          >
             {translate("NoAccount")}
           </Text>
         </TouchableOpacity>

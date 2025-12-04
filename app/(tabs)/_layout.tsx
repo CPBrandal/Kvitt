@@ -1,6 +1,6 @@
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { commonStyles } from "@/constants/styles";
+import { bgColors, commonStyles } from "@/constants/styles";
 import { useTranslate } from "@/hooks/useTranslate";
 import { Tabs } from "expo-router";
 import { useColorScheme } from "nativewind";
@@ -14,11 +14,15 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: isDark ? "#ffffff" : "#000000",
+        tabBarActiveTintColor: isDark
+          ? commonStyles.imgColorDark
+          : commonStyles.imgColorLight,
+        tabBarInactiveTintColor: isDark ? "#6b7280" : "#9ca3af",
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: isDark ? "#111827" : "#ffffff",
+          backgroundColor: isDark ? bgColors.swamp : bgColors.porcelain,
+          borderTopColor: isDark ? "#374151" : "#e5e7eb",
         },
       }}
     >

@@ -52,12 +52,27 @@ export default function ReceiptScanner() {
   };
 
   const filteredReceipts = useMemo(() => {
+    // Sort receipts by date (newest first)
+    const sortedReceipts = [...receipts].sort((a, b) => {
+      const dateA = a.receiptDate
+        ? new Date(a.receiptDate).getTime()
+        : a.createdAt
+        ? new Date(a.createdAt).getTime()
+        : 0;
+      const dateB = b.receiptDate
+        ? new Date(b.receiptDate).getTime()
+        : b.createdAt
+        ? new Date(b.createdAt).getTime()
+        : 0;
+      return dateB - dateA; // Newest first
+    });
+
     if (!searchQuery.trim()) {
-      return receipts;
+      return sortedReceipts;
     }
 
     const query = searchQuery.toLowerCase().trim();
-    return receipts.filter((receipt) =>
+    return sortedReceipts.filter((receipt) =>
       receipt.sellerName?.toLowerCase().includes(query)
     );
   }, [receipts, searchQuery]);
