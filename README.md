@@ -1,50 +1,71 @@
-# Welcome to your Expo app 👋
+# Receipt Scanner
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile app for scanning and managing receipts using OCR technology.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📸 Scan receipts using camera or photo library
+- 🔍 Extract text from receipts using Google Cloud Vision API
+- 📄 Export receipts as PDFs
+- 💾 Store receipts in Firebase
+- 🔐 User authentication with Firebase Auth
+- 📱 Works on iOS and Android
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **React Native** with Expo
+- **TypeScript**
+- **Tailwind CSS** (NativeWind)
+- **Firebase** (Authentication & Firestore)
+- **Google Cloud Vision API** (OCR)
 
-   ```bash
-   npx expo start
-   ```
+## Prerequisites
 
-In the output, you'll find options to open the app in a
+- Node.js (v16 or higher)
+- Expo CLI
+- Firebase account
+- Google Cloud account with Vision API enabled
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Installation
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+1. Clone the repository
 ```bash
-npm run reset-project
+git clone <your-repo-url>
+cd receipt-scanner
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Install dependencies
+```bash
+npm install
+```
 
-## Learn more
+3. Set up environment variables
+Create a `.env` file:
+```
+FIREBASE_API_KEY=your_firebase_api_key
+FIREBASE_AUTH_DOMAIN=your_auth_domain
+FIREBASE_PROJECT_ID=your_project_id
+GOOGLE_CLOUD_VISION_API_KEY=your_vision_api_key
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+4. Start the app
+```bash
+npx expo start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Usage
 
-## Join the community
+1. Sign up or log in
+2. Tap the camera button to scan a receipt
+3. Review extracted text
+4. Save or export as PDF
 
-Join our community of developers creating universal apps.
+## License
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT
+
+<img width="585" height="1266" alt="IMG_8954" src="https://github.com/user-attachments/assets/2e84e011-170e-4e16-b260-5e4d1079e5aa" />
+<img width="585" height="1266" alt="IMG_8956" src="https://github.com/user-attachments/assets/20ea51b1-2203-451e-b3a8-4629bf44ffcb" />
+<img width="585" height="1266" alt="IMG_8957" src="https://github.com/user-attachments/assets/2bc04f06-e1ad-4fee-81ee-99a49c9504d2" />
+<img width="585" height="1266" alt="IMG_8958" src="https://github.com/user-attachments/assets/aef718c3-5638-4bfa-8979-428491fa1be5" />
+<img width="585" height="1266" alt="IMG_8960" src="https://github.com/user-attachments/assets/3846c38a-cbd1-4006-81a2-3fd0f7a9aa42" />
