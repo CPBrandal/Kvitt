@@ -10,11 +10,12 @@ import {
 import { createReceipt, getUserReceipts } from "@/services/receiptService";
 import { Receipt } from "@/types/receipts";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -44,11 +45,17 @@ export default function HomeScreen() {
         router.replace("/login");
       } else if (!user.emailVerified) {
         router.replace("/verify-email");
-      } else {
-        loadStats();
       }
     }
   }, [user, loading]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user && !loading) {
+        loadStats();
+      }
+    }, [user, loading])
+  );
 
   const loadStats = async () => {
     if (!user) return;
@@ -119,13 +126,11 @@ export default function HomeScreen() {
     try {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
-        allowsEditing: false,
-        quality: 0.8, // Reduced from 1.0 for faster processing
+        quality: 0.5,
       });
 
       if (!result.canceled) {
         const uri = result.assets[0].uri;
-        console.log("Image URI:", uri);
         handleReceiptCapture(uri);
       }
     } catch (error) {
@@ -139,13 +144,10 @@ export default function HomeScreen() {
       console.log("🔄 Optimizing image...");
       const optimizedImageUri = await optimizeImageForUpload(imageUri);
 
-      // Parse receipt with GPT-4 (pass optimized image to avoid re-conversion)
       console.log("📄 Parsing receipt...");
       const parsed = await parseReceiptImage(imageUri, optimizedImageUri);
 
-      console.log("Parsed receipt:", parsed);
-
-      console.log("☁️ Uploading receipt...");
+      //console.log("Parsed receipt:", parsed);
       const receiptId = await createReceipt(
         user!.uid,
         user!.email!,

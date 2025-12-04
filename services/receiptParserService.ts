@@ -24,6 +24,11 @@ export interface ParsedReceiptData {
   confidence: number;
 }
 
+const parseReceipt = httpsCallable<{ imageBase64: string }, ParsedReceiptData>(
+  functions,
+  "parseReceipt"
+);
+
 /**
  * Parse receipt image and return optimized JPEG URI for reuse
  * Returns both parsed data and the optimized image URI
@@ -33,41 +38,23 @@ export const parseReceiptImage = async (
   preOptimizedUri?: string
 ): Promise<ParsedReceiptData> => {
   try {
-    console.log("📸 Converting image to base64...");
+    console.log("--- Converting image to base64...");
     const base64 = await convertImageToBase64(imageUri, preOptimizedUri);
 
-    console.log("🚀 Calling GPT-4 Vision API...");
-    const parseReceipt = httpsCallable<{ imageBase64: string }>(
-      functions,
-      "parseReceipt"
-    );
-
+    console.log("--- Calling GPT-4 Vision API...");
     const result = await parseReceipt({ imageBase64: base64 });
-
-    console.log("✅ Receipt parsed successfully!");
-
-    // Cast the result.data to our type
-    const data = result.data as ParsedReceiptData;
-
-    console.log("Seller:", data.sellerName);
-    console.log("Total:", data.totalAmount, data.currency);
-    console.log("Items:", data.items.length);
-
-    return data;
+    return result.data;
   } catch (error: any) {
-    console.error("❌ Error parsing receipt:", error);
+    console.error("--- Error parsing receipt:", error);
 
-    if (error.code === "unauthenticated") {
+    if (error.code === "unauthenticated")
       throw new Error("You must be logged in to parse receipts");
-    }
 
-    if (error.code === "resource-exhausted") {
+    if (error.code === "resource-exhausted")
       throw new Error("OpenAI API quota exceeded. Please contact support.");
-    }
 
-    if (error.message?.includes("network")) {
+    if (error.message?.includes("network"))
       throw new Error("Network error. Please check your internet connection.");
-    }
 
     throw new Error("Failed to parse receipt. Please try again.");
   }
@@ -189,21 +176,15 @@ export const validateParsedReceipt = (
 } => {
   const errors: string[] = [];
 
-  if (!data.sellerName) {
-    errors.push("Seller name is missing");
-  }
+  if (!data.sellerName) errors.push("Seller name is missing");
 
-  if (!data.totalAmount || data.totalAmount <= 0) {
+  if (!data.totalAmount || data.totalAmount <= 0)
     errors.push("Total amount is missing or invalid");
-  }
 
-  if (!data.receiptDate) {
-    errors.push("Receipt date is missing");
-  }
+  if (!data.receiptDate) errors.push("Receipt date is missing");
 
-  if (!data.items || data.items.length === 0) {
+  if (!data.items || data.items.length === 0)
     errors.push("No line items found");
-  }
 
   return {
     isValid: errors.length === 0,
@@ -217,17 +198,14 @@ export const validateParsedReceipt = (
 export const formatParsedReceipt = (data: ParsedReceiptData) => {
   return {
     ...data,
-    // Format currency
     totalFormatted: data.totalAmount
       ? `${data.totalAmount.toFixed(2)} ${data.currency || "NOK"}`
       : "N/A",
 
-    // Format date
     dateFormatted: data.receiptDate
       ? new Date(data.receiptDate).toLocaleDateString("nb-NO")
       : "N/A",
 
-    // Calculate subtotal if missing
     subtotal:
       data.subtotal ||
       (data.totalAmount && data.vatAmount
