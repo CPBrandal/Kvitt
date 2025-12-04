@@ -4,12 +4,12 @@ A React Native mobile app for scanning and managing receipts using OCR technolog
 
 ## Features
 
-- 📸 Scan receipts using camera or photo library
-- 🔍 Extract text from receipts using Google Cloud Vision API
-- 📄 Export receipts as PDFs
-- 💾 Store receipts in Firebase
-- 🔐 User authentication with Firebase Auth
-- 📱 Works on iOS and Android
+- Scan receipts using camera or photo library
+- Extract text from receipts using Google Cloud Vision API
+- Export receipts as PDFs
+- Store receipts in Firebase
+- User authentication with Firebase Auth
+- Works on iOS and Android
 
 ## Tech Stack
 
@@ -64,8 +64,18 @@ npx expo start
 
 MIT
 
+## Images
+
 <img width="585" height="1266" alt="IMG_8954" src="https://github.com/user-attachments/assets/2e84e011-170e-4e16-b260-5e4d1079e5aa" />
+
+
 <img width="585" height="1266" alt="IMG_8956" src="https://github.com/user-attachments/assets/20ea51b1-2203-451e-b3a8-4629bf44ffcb" />
+
+
 <img width="585" height="1266" alt="IMG_8957" src="https://github.com/user-attachments/assets/2bc04f06-e1ad-4fee-81ee-99a49c9504d2" />
+
+
 <img width="585" height="1266" alt="IMG_8958" src="https://github.com/user-attachments/assets/aef718c3-5638-4bfa-8979-428491fa1be5" />
+
+
 <img width="585" height="1266" alt="IMG_8960" src="https://github.com/user-attachments/assets/3846c38a-cbd1-4006-81a2-3fd0f7a9aa42" />
