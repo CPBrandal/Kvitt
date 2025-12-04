@@ -31,7 +31,6 @@ A React Native mobile app for scanning and managing receipts using OCR technolog
 1. Clone the repository
 ```bash
 git clone <your-repo-url>
-cd receipt-scanner
 ```
 
 2. Install dependencies
