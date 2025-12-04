@@ -1,5 +1,6 @@
 // services/receiptParserService.ts
 import { functions } from "@/config/firebase";
+import * as ImageManipulator from "expo-image-manipulator";
 import { httpsCallable } from "firebase/functions";
 
 export interface ParsedReceiptData {
@@ -23,16 +24,19 @@ export interface ParsedReceiptData {
   confidence: number;
 }
 
+/**
+ * Parse receipt image and return optimized JPEG URI for reuse
+ * Returns both parsed data and the optimized image URI
+ */
 export const parseReceiptImage = async (
-  imageUri: string
+  imageUri: string,
+  preOptimizedUri?: string
 ): Promise<ParsedReceiptData> => {
   try {
     console.log("📸 Converting image to base64...");
-    const base64 = await convertImageToBase64(imageUri);
+    const base64 = await convertImageToBase64(imageUri, preOptimizedUri);
 
     console.log("🚀 Calling GPT-4 Vision API...");
-
-    // ✅ Fixed: Remove the second generic type
     const parseReceipt = httpsCallable<{ imageBase64: string }>(
       functions,
       "parseReceipt"
@@ -70,13 +74,72 @@ export const parseReceiptImage = async (
 };
 
 /**
+ * Convert image to optimized JPEG and return URI
+ * This can be reused for both parsing and upload
+ */
+export const optimizeImageForUpload = async (
+  imageUri: string
+): Promise<string> => {
+  return convertImageToJPEG(imageUri);
+};
+
+/**
+ * Convert image to JPEG format if needed (handles HEIC/HEIF from iPhone)
+ * Also resizes and compresses for faster processing
+ * Returns the URI of the converted image
+ */
+const convertImageToJPEG = async (imageUri: string): Promise<string> => {
+  try {
+    // First, get image info to check dimensions
+    const imageInfo = await ImageManipulator.manipulateAsync(imageUri, [], {
+      format: ImageManipulator.SaveFormat.JPEG,
+    });
+
+    // Resize if image is too large (max 2048px on longest side for faster processing)
+    // This significantly reduces processing time and file size
+    let resizeAction: ImageManipulator.Action[] = [];
+    if (imageInfo.width > 2048 || imageInfo.height > 2048) {
+      if (imageInfo.width > imageInfo.height) {
+        resizeAction = [{ resize: { width: 2048 } }];
+      } else {
+        resizeAction = [{ resize: { height: 2048 } }];
+      }
+    }
+
+    // Convert image to JPEG format with compression and optional resize
+    const manipulatedImage = await ImageManipulator.manipulateAsync(
+      imageUri,
+      resizeAction,
+      {
+        compress: 0.7, // Increased compression for faster upload/processing
+        format: ImageManipulator.SaveFormat.JPEG, // Force JPEG format
+      }
+    );
+
+    return manipulatedImage.uri;
+  } catch (error) {
+    console.error("Error converting image to JPEG:", error);
+    // If conversion fails, return original URI as fallback
+    return imageUri;
+  }
+};
+
+/**
  * Convert image URI to base64 string
  * Works with both local URIs and remote URLs
+ * Automatically converts HEIC/HEIF to JPEG before conversion
+ * Accepts optional pre-converted JPEG URI to avoid double conversion
  */
-const convertImageToBase64 = async (imageUri: string): Promise<string> => {
+const convertImageToBase64 = async (
+  imageUri: string,
+  preConvertedUri?: string
+): Promise<string> => {
   try {
-    // Fetch the image
-    const response = await fetch(imageUri);
+    // Use pre-converted URI if available, otherwise convert now
+    const jpegUri = preConvertedUri || (await convertImageToJPEG(imageUri));
+
+    // Fetch the converted image
+    const response = await fetch(jpegUri);
 
     if (!response.ok) {
       throw new Error("Failed to fetch image");

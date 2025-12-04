@@ -3,8 +3,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslate } from "@/hooks/useTranslate";
 import { logout } from "@/services/auth";
-import { parseReceiptImage } from "@/services/receiptParserService";
-import { createReceipt } from "@/services/receiptService";
+import {
+  optimizeImageForUpload,
+  parseReceiptImage,
+} from "@/services/receiptParserService";
+import { createReceipt, getUserReceipts } from "@/services/receiptService";
+import { Receipt } from "@/types/receipts";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -13,6 +17,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -22,6 +27,13 @@ export default function HomeScreen() {
   const { user, loading } = useAuth();
   const translate = useTranslate();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [stats, setStats] = useState({
+    totalReceipts: 0,
+    totalAmount: 0,
+    thisMonthAmount: 0,
+  });
+  const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
 
@@ -31,9 +43,57 @@ export default function HomeScreen() {
         router.replace("/login");
       } else if (!user.emailVerified) {
         router.replace("/verify-email");
+      } else {
+        loadStats();
       }
     }
   }, [user, loading]);
+
+  const loadStats = async () => {
+    if (!user) return;
+    try {
+      setLoadingStats(true);
+      const receipts = await getUserReceipts(user.uid);
+
+      // Calculate stats
+      const totalAmount = receipts.reduce(
+        (sum, r) => sum + (r.totalAmount || 0),
+        0
+      );
+
+      // Calculate this month's spending
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const thisMonthAmount = receipts
+        .filter((r) => {
+          const receiptDate = r.receiptDate
+            ? new Date(r.receiptDate)
+            : r.createdAt
+            ? new Date(r.createdAt)
+            : null;
+          return receiptDate && receiptDate >= startOfMonth;
+        })
+        .reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+
+      setStats({
+        totalReceipts: receipts.length,
+        totalAmount,
+        thisMonthAmount,
+      });
+
+      // Get recent receipts (last 5)
+      const sorted = [...receipts].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+      setRecentReceipts(sorted.slice(0, 5));
+    } catch (error) {
+      console.error("Error loading stats:", error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -59,7 +119,7 @@ export default function HomeScreen() {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
         allowsEditing: false,
-        quality: 1,
+        quality: 0.8, // Reduced from 1.0 for faster processing
       });
 
       if (!result.canceled) {
@@ -75,12 +135,16 @@ export default function HomeScreen() {
   const handleReceiptCapture = async (imageUri: string) => {
     try {
       setIsLoading(true);
+      console.log("🔄 Optimizing image...");
+      const optimizedImageUri = await optimizeImageForUpload(imageUri);
 
-      // Parse receipt with GPT-4
-      const parsed = await parseReceiptImage(imageUri);
+      // Parse receipt with GPT-4 (pass optimized image to avoid re-conversion)
+      console.log("📄 Parsing receipt...");
+      const parsed = await parseReceiptImage(imageUri, optimizedImageUri);
 
       console.log("Parsed receipt:", parsed);
 
+      console.log("☁️ Uploading receipt...");
       const receiptId = await createReceipt(
         user!.uid,
         user!.email!,
@@ -115,8 +179,17 @@ export default function HomeScreen() {
           ocrConfidence: parsed.confidence,
           hasVAT: (parsed.vatAmount || 0) > 0,
         },
-        imageUri
+        imageUri,
+        optimizedImageUri // Pass optimized image to avoid re-processing
       );
+
+      console.log("✅ Receipt created successfully:", receiptId);
+
+      // Refresh stats after successful upload
+      await loadStats();
+
+      // Navigate to receipts tab to see the new receipt
+      router.push("/(tabs)/receipts");
     } catch (error) {
       console.error("Error processing receipt:", error);
       Alert.alert("Error", "Failed to process receipt. Please try again.");
@@ -137,7 +210,7 @@ export default function HomeScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: false,
-        quality: 1,
+        quality: 0.8, // Reduced from 1.0 for faster processing
       });
 
       if (!result.canceled) {
@@ -150,120 +223,354 @@ export default function HomeScreen() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return `${amount.toFixed(0)} kr`;
+  };
+
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return "";
+    const receiptDate = new Date(date);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (receiptDate.toDateString() === today.toDateString()) {
+      return "Today";
+    } else if (receiptDate.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    } else {
+      return receiptDate.toLocaleDateString("nb-NO", {
+        month: "short",
+        day: "numeric",
+      });
+    }
+  };
+
   return (
     <View className={`flex-1 ${commonStyles.bgScreen}`}>
       <StatusBar style={isDark ? "light" : "dark"} />
 
       {isLoading && (
-        <View className="absolute inset-0 z-50 bg-black/50 justify-center items-center">
-          <View className={`${commonStyles.bg} rounded-2xl p-8 items-center`}>
+        <View className="absolute inset-0 z-50 bg-black/60 justify-center items-center backdrop-blur-sm">
+          <View
+            className={`${commonStyles.bg} rounded-3xl p-10 items-center min-w-[280px]`}
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 20 },
+              shadowOpacity: 0.25,
+              shadowRadius: 25,
+              elevation: 20,
+            }}
+          >
             <ActivityIndicator size="large" color="#3b82f6" />
-            <Text className={`${commonStyles.text} mt-4 text-lg font-semibold`}>
+            <Text className={`${commonStyles.text} mt-6 text-xl font-bold`}>
               {translate("ProcessingReceipt")}
             </Text>
-            <Text className="text-gray-500 dark:text-gray-400 mt-2 text-center">
+            <Text className="text-gray-500 dark:text-gray-400 mt-3 text-center text-base">
               {translate("ThisMightTakeFewSeconds")}
             </Text>
           </View>
         </View>
       )}
-      {/* Header with Theme Toggle */}
-      <View className="px-6 pt-16 pb-6">
-        <View className="flex-row items-center justify-between">
-          <Text className={`text-3xl font-bold ${commonStyles.text}`}>
-            Kvitt
-          </Text>
 
-          <TouchableOpacity
-            onPress={() => {
-              if (user) {
-                Alert.alert(
-                  translate("SignOut"),
-                  translate("AreYouSureYouWantToLogOut"),
-                  [
-                    {
-                      text: translate("Cancel"),
-                      style: "cancel",
-                    },
-                    {
-                      text: translate("LogOut"),
-                      style: "destructive",
-                      onPress: async () => {
-                        try {
-                          await logout();
-                          router.replace("/login");
-                        } catch (error) {
-                          console.error("Logout error:", error);
-                          Alert.alert(
-                            "Error",
-                            "Failed to logout. Please try again."
-                          );
-                        }
-                      },
-                    },
-                  ]
-                );
-              } else {
-                router.push("/login");
-              }
-            }}
-            className="p-3 rounded-lg"
-          >
-            <Ionicons
-              name={user ? "log-out" : "log-in"}
-              size={24}
-              color={
-                isDark ? commonStyles.imgColorDark : commonStyles.imgColorLight
-              }
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Main Content - Centered */}
-      <View className="flex-1 justify-center px-6">
-        {/* Theme Indicator */}
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        {/* Header with Gradient Background */}
         <View
-          className={`${commonStyles.bg} rounded-2xl p-8 border-2 ${commonStyles.border} items-center mb-8`}
+          className={`pt-20 pb-8 px-6 ${
+            isDark
+              ? "bg-gray-900"
+              : "bg-gradient-to-b from-blue-50 to-transparent"
+          }`}
+          style={{
+            backgroundColor: isDark ? "#111827" : "#EFF6FF",
+          }}
         >
-          <Text
-            className={`${commonStyles.text} text-2xl font-bold mt-4 text-center`}
-          >
-            {translate("Hello")}, {user.displayName}!
-          </Text>
+          <View className="flex-row items-start justify-between mb-6">
+            <View className="flex-1">
+              <Text
+                className={`text-4xl font-extrabold ${commonStyles.text} mb-2`}
+              >
+                {translate("Hello")},{" "}
+                {user?.displayName?.split(" ")[0] || "there"}!
+              </Text>
+              <Text className="text-gray-600 dark:text-gray-400 text-base">
+                {translate("WelcomeBack")}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => {
+                if (user) {
+                  Alert.alert(
+                    translate("SignOut"),
+                    translate("AreYouSureYouWantToLogOut"),
+                    [
+                      {
+                        text: translate("Cancel"),
+                        style: "cancel",
+                      },
+                      {
+                        text: translate("LogOut"),
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            await logout();
+                            router.replace("/login");
+                          } catch (error) {
+                            console.error("Logout error:", error);
+                            Alert.alert(
+                              "Error",
+                              "Failed to logout. Please try again."
+                            );
+                          }
+                        },
+                      },
+                    ]
+                  );
+                }
+              }}
+              className={`p-3 rounded-full ${
+                isDark ? "bg-gray-800/50" : "bg-white/80"
+              }`}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="log-out-outline"
+                size={22}
+                color={
+                  isDark
+                    ? commonStyles.imgColorDark
+                    : commonStyles.imgColorLight
+                }
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Hero Stat Card */}
+          {!loadingStats && (
+            <View
+              className={`${commonStyles.bg} rounded-3xl p-6 mb-2`}
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: isDark ? 0.3 : 0.1,
+                shadowRadius: 12,
+                elevation: 5,
+              }}
+            >
+              <Text className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">
+                {translate("TotalSpent") || "Total Spent"}
+              </Text>
+              <Text className={`${commonStyles.text} text-5xl font-black mb-1`}>
+                {formatCurrency(stats.totalAmount)}
+              </Text>
+              <View className="flex-row items-center gap-4 mt-4">
+                <View className="flex-row items-center">
+                  <Ionicons name="receipt-outline" size={16} color="#6b7280" />
+                  <Text className="text-gray-600 dark:text-gray-400 text-sm ml-1.5">
+                    {stats.totalReceipts}{" "}
+                    {translate("TotalReceipts") || "receipts"}
+                  </Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Ionicons name="calendar-outline" size={16} color="#6b7280" />
+                  <Text className="text-gray-600 dark:text-gray-400 text-sm ml-1.5">
+                    {formatCurrency(stats.thisMonthAmount)}{" "}
+                    {translate("ThisMonth") || "this month"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {loadingStats && (
+            <View className="py-8">
+              <ActivityIndicator size="small" color="#3b82f6" />
+            </View>
+          )}
         </View>
 
-        {/* Action Buttons */}
-        <TouchableOpacity
-          onPress={handleTakePhoto}
-          className="bg-blue-600 dark:bg-blue-500 rounded-2xl p-5 mb-3 flex-row items-center justify-center"
-          activeOpacity={0.8}
-        >
-          <Ionicons name="camera" size={24} color="white" />
-          <Text className="text-white text-lg font-semibold ml-3">
-            {translate("TakePicture")}
+        {/* Action Buttons - Side by Side */}
+        <View className="px-6 mb-8">
+          <Text className={`${commonStyles.text} text-lg font-bold mb-4`}>
+            Add Receipt
           </Text>
-        </TouchableOpacity>
+          <View className="flex-row gap-4">
+            <TouchableOpacity
+              onPress={handleTakePhoto}
+              className="flex-1 bg-blue-600 dark:bg-blue-500 rounded-2xl p-6 items-center justify-center"
+              activeOpacity={0.85}
+              style={{
+                shadowColor: "#3b82f6",
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.4,
+                shadowRadius: 10,
+                elevation: 8,
+              }}
+            >
+              <View className="bg-white/25 rounded-full p-4 mb-3">
+                <Ionicons name="camera" size={28} color="white" />
+              </View>
+              <Text className="text-white text-base font-bold">
+                {translate("TakePicture")}
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={handleChooseFromGallery}
-          className={`${commonStyles.bg} border-2 ${commonStyles.border} rounded-2xl p-5 flex-row items-center justify-center`}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="images"
-            size={24}
-            color={
-              isDark
-                ? `${commonStyles.imgColorDark}`
-                : `${commonStyles.imgColorLight}`
-            }
-          />
-          <Text className={`${commonStyles.text} text-lg font-semibold ml-3`}>
-            {translate("UploadFromGallery")}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <TouchableOpacity
+              onPress={handleChooseFromGallery}
+              className={`flex-1 ${commonStyles.bg} rounded-2xl p-6 items-center justify-center border-2 ${commonStyles.border}`}
+              activeOpacity={0.7}
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: isDark ? 0.2 : 0.05,
+                shadowRadius: 6,
+                elevation: 3,
+              }}
+            >
+              <View
+                className={`rounded-full p-4 mb-3 ${
+                  isDark ? "bg-gray-800" : "bg-gray-100"
+                }`}
+              >
+                <Ionicons
+                  name="images-outline"
+                  size={28}
+                  color={
+                    isDark
+                      ? commonStyles.imgColorDark
+                      : commonStyles.imgColorLight
+                  }
+                />
+              </View>
+              <Text className={`${commonStyles.text} text-base font-bold`}>
+                {translate("UploadFromGallery")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Recent Receipts */}
+        {recentReceipts.length > 0 && (
+          <View className="px-6 mb-6">
+            <View className="flex-row items-center justify-between mb-5">
+              <Text className={`${commonStyles.text} text-2xl font-bold`}>
+                Recent Receipts
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)/receipts")}
+                className="flex-row items-center"
+                activeOpacity={0.7}
+              >
+                <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold mr-1">
+                  View all
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={isDark ? "#60a5fa" : "#2563eb"}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {recentReceipts.slice(0, 3).map((receipt) => (
+              <TouchableOpacity
+                key={receipt.id}
+                onPress={() => router.push(`/receipt-detail/${receipt.id}`)}
+                className={`${commonStyles.bg} rounded-2xl p-5 mb-3 border ${commonStyles.border} flex-row items-center`}
+                activeOpacity={0.7}
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: isDark ? 0.2 : 0.05,
+                  shadowRadius: 6,
+                  elevation: 2,
+                }}
+              >
+                <View
+                  className={`${
+                    isDark ? "bg-gray-800" : "bg-blue-50"
+                  } rounded-xl p-3 mr-4`}
+                >
+                  <Ionicons
+                    name="receipt"
+                    size={24}
+                    color={isDark ? "#60a5fa" : "#3b82f6"}
+                  />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    className={`${commonStyles.text} font-bold text-base mb-1`}
+                    numberOfLines={1}
+                  >
+                    {receipt.sellerName || translate("UnknownStore")}
+                  </Text>
+                  <Text className="text-gray-500 dark:text-gray-400 text-sm">
+                    {formatDate(
+                      receipt.receiptDate
+                        ? new Date(receipt.receiptDate)
+                        : receipt.createdAt
+                        ? new Date(receipt.createdAt)
+                        : undefined
+                    )}
+                  </Text>
+                </View>
+                <View className="items-end ml-3">
+                  <Text className={`${commonStyles.text} font-bold text-lg`}>
+                    {formatCurrency(receipt.totalAmount || 0)}
+                  </Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color="#9ca3af"
+                    style={{ marginTop: 6 }}
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* Empty State */}
+        {!loadingStats && stats.totalReceipts === 0 && (
+          <View className="px-6 mt-4">
+            <View
+              className={`${commonStyles.bg} rounded-3xl p-12 items-center border ${commonStyles.border}`}
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: isDark ? 0.2 : 0.05,
+                shadowRadius: 10,
+                elevation: 3,
+              }}
+            >
+              <View
+                className={`${
+                  isDark ? "bg-gray-800" : "bg-blue-50"
+                } rounded-full p-6 mb-6`}
+              >
+                <Ionicons
+                  name="receipt-outline"
+                  size={56}
+                  color={isDark ? "#60a5fa" : "#3b82f6"}
+                />
+              </View>
+              <Text
+                className={`${commonStyles.text} text-2xl font-bold mt-2 text-center mb-2`}
+              >
+                No receipts yet
+              </Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-center text-base">
+                Start by scanning your first receipt
+              </Text>
+            </View>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }

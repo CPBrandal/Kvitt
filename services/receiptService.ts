@@ -24,16 +24,22 @@ const RECEIPTS_COLLECTION = "receipts";
 
 /**
  * Create a new receipt
+ * Accepts optional optimizedImageUri to avoid re-processing the image
  */
 export const createReceipt = async (
   userId: string,
   userEmail: string,
   receiptData: Partial<Receipt>,
-  imageUri: string
+  imageUri: string,
+  optimizedImageUri?: string
 ): Promise<string> => {
   try {
-    // Upload image to Firebase Storage
-    const { imageUrl, imagePath } = await uploadReceiptImage(userId, imageUri);
+    // Upload image to Firebase Storage (use optimized image if available)
+    const { imageUrl, imagePath } = await uploadReceiptImage(
+      userId,
+      imageUri,
+      optimizedImageUri
+    );
 
     // Create receipt document
     const receiptRef = await addDoc(collection(db, RECEIPTS_COLLECTION), {
@@ -57,14 +63,19 @@ export const createReceipt = async (
 
 /**
  * Upload receipt image to Firebase Storage
+ * Accepts optional optimizedImageUri to avoid re-processing
  */
 const uploadReceiptImage = async (
   userId: string,
-  imageUri: string
+  imageUri: string,
+  optimizedImageUri?: string
 ): Promise<{ imageUrl: string; imagePath: string }> => {
   try {
+    // Use optimized image if provided, otherwise use original
+    const imageToUpload = optimizedImageUri || imageUri;
+
     // Convert image URI to blob
-    const response = await fetch(imageUri);
+    const response = await fetch(imageToUpload);
     const blob = await response.blob();
 
     // Create unique filename
